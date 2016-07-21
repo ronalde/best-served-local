@@ -1,4 +1,4 @@
-# best-served-local (Yet Another Google Font Downloader written in bash)
+# best-served-local (aka Yet Another Google Font Downloader written in bash)
 
 ## Rationale
 
@@ -27,22 +27,6 @@ https://css-tricks.com/snippets/css/using-font-face/.
 
 Without options, the script will download the font to a temporary directory. 
 
-## Extra features
-
-Setting a value for the `--incss-fontpath` (or `-i`) argument will
-cause the resulting `url()` values in the `srv` attribute to use that
-as the path to the font file, eg using `-i ../static/fonts` will
-result in the following css:
-
-```css
-url('../static/fonts/A_Web_Font_v1_latin.woff2')
-```
-
-While omitting that option would result in:
-```css
-url('A_Web_Font_v1_latin.woff2')
-```
-
 ## Fully automated usage
 
 Run the script on your web server, together with valid values for
@@ -60,6 +44,23 @@ fully automated powertool:
   --subsets latin-ext \
   "Open Sans:300,400,700" "Roboto:100,100italic,regular,italic,900"
 ```
+
+## Some extra features
+
+Setting a value for the `--incss-fontpath` (or `-i`) argument will
+cause the resulting `url()` values in the `srv` attribute to use that
+as the path to the font file, eg using `-i ../static/fonts` will
+result in the following css:
+
+```css
+url('../static/fonts/A_Web_Font_v1_latin.woff2')
+```
+
+While omitting that option would result in:
+```css
+url('A_Web_Font_v1_latin.woff2')
+```
+
 
 ## Yet some more extras 
 
