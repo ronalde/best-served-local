@@ -96,6 +96,7 @@ function display_usageinfo() {
         [-i|--incss-fontpath PATH] \\
         [-s|--subsets SUBSETSPEC] [-f|--formats FORMATSPEC] \\
         [-n|--skip-downloads] [-x|${label_skip_localsrc}] \\
+        [${label_overwrite_cssfile}] [${label_overwrite_fonts}] \\
         [-h||--help] \\
         FONTSPEC|CSSFILE
 
