@@ -71,7 +71,7 @@ Using `--skip-downloads` (or `-n`) will not download the font files,
 but just output the proper CSS. It will however contact Goole-server
 to verify the proper css attributes and such.
 
-## `FONTSPEC`
+## FONTSPEC
 
 Should be space separated list of family names, with
 optional suffix consisting of `:` with a comma separated list of
@@ -94,12 +94,14 @@ Multiple FONTSPECs should be space seperated (and surrounden with
 quotes or space-escaped):
 
 ```bash
-./best-served-local "Open Sans:regular:italic" "Web Font A:extrabold,superlight" "Web Font B:100,200""
+./best-served-local \
+  "Open Sans:regular:italic" \
+  "Web Font A:extrabold,superlight" \
+  "Web Font B:100,200""
 ```
 
 
-
-## `FORMATSPECS`
+## FORMATSPECS
 
 `FORMATSPECS` define the font formats for use in the CSS and
 downloading. It should be specified as one of the presets, or a
@@ -110,7 +112,7 @@ https://css-tricks.com/snippets/css/using-font-face/:
 * **superprogressive**: `woff2`
 * **practical**:        *superprogressive* + `woff` (= default)
 * **slightlydeeper**:   *practical* + `ttf`
-* **all**:              all of the above + `odt` and `svg`
+* **all**:              all of the above + `otf` and `svg`
 
 
 For example, to use the (default) *practical* set consisting of the
