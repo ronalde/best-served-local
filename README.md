@@ -7,8 +7,8 @@ Inspired by
 and
 [google-webfonts-helper](https://google-webfonts-helper.herokuapp.com/fonts)
 I developed this script to make it easy to automate (via cron and
-such) the downloading of remote web fonts for serving from my own
-webserver.
+such) the downloading of remote web fonts and the creation of high
+quality css[^bulletproof] for serving from my own webserver.
 
 ## Simple usage example
 
@@ -132,3 +132,8 @@ You want something funky? Just tell the script to do so:
 ```bash
 ./best-served-local -f otf,svg "Open Sans" 
 ```
+
+[^bulletproof]:
+	As desribed in the
+    [Bulletproof @font-face](http://www.paulirish.com/2009/bulletproof-font-face-implementation-syntax/)
+    by Paul Irish.
