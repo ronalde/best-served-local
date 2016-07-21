@@ -43,6 +43,11 @@ from the web (although some would advise against that):
 bash <(wget -q -O - "http://lacocina.nl/best-served-local") "Roboto:100,900"
 ```
 
+Or, when you prefer `curl`:
+```bash
+bash <(curl -sL "http://lacocina.nl/best-served-local") "Roboto:100,900"
+```
+
 ## Fully automated usage example
 
 Run the script on your web server, together with valid values for
