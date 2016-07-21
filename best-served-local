@@ -90,21 +90,6 @@ function get_fontsdirectory() {
 }
 
 
-function check_sanity() {
-    declare -a msg_err
-    msg=
-
-
-    ## check paths
-
-    if [[ ${#a_msg_err[@]} -gt 0 ]]; then
-	printf 1>&2 "%s\n" "The following (fatal) errors occured:"
-	printf 1>&2 "${a_msg_err[@]}\n"
-	return 1
-    fi
-}
-
-
 function display_usageinfo() {
     msg="""Usage:
    ${0:-APP_NAME} [-o|--outputfile PATH] [-d|--download-directory PATH] \\
