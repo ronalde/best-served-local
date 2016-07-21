@@ -11,6 +11,10 @@ such) the downloading of remote web fonts and the creation of high
 quality css<sup><a href="#bulletproof">1</a></sup> for serving from my
 own webserver.
 
+Apart from [bash](https://www.gnu.org/software/bash/) version 4, this
+script only depends on [curl](https://curl.haxx.se/).  (It's not
+tested on OSX yet).
+
 
 ## Simple usage example
 
@@ -115,7 +119,7 @@ https://css-tricks.com/snippets/css/using-font-face/:
 * **superprogressive**: `woff2`
 * **practical**:        *superprogressive* + `woff` (= default)
 * **slightlydeeper**:   *practical* + `ttf`
-* **all**:              all of the above + `otf` and `svg`
+* **all**:              all of the above + `eot`, `otf` and `svg`
 
 
 For example, to use the (default) *practical* set consisting of the
@@ -132,7 +136,7 @@ To get full support (and heavy per page downloads), use:
 
 You want something funky? Just tell the script to do so:
 ```bash
-./best-served-local -f otf,svg "Open Sans" 
+./best-served-local -f eot,svg "Open Sans" 
 ```
 
 ----
