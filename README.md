@@ -75,6 +75,16 @@ Or, when you prefer `curl`:
 bash <(curl -sL "http://lacocina.nl/best-served-local") -f all Slabo\ 27px
 ```
 
+To display all command line arguments, run it with `--help` (or `-h`)  argument:
+```bash
+best-served-local [-o|--outputfile PATH] [-d|--fontdirectory PATH] \
+      [-i|--incss-fontpath PATH] \
+      [-s|--subsets SUBSETSPEC] [-f|--formats FORMATSPEC] \
+      [-n|--skip-downloads] [-x|--skip-local] \
+      [-h||--help] \
+      FONTSPEC
+```
+
 
 ## Features
 
