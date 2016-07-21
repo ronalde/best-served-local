@@ -43,7 +43,7 @@ function err_exit() {
     ## display fatal error triggered by function $1 with description
     ## $2 and exit with error
     printf 1>&2 "%s\n" "$1"
-    printf 1>&2 "Run \`${0:-${APP_NAME}} -h' to see usage information.\n"
+    printf 1>&2 "Run \`${APP_NAME} -h' to see usage information.\n"
     exit 1
 }
 
@@ -92,7 +92,7 @@ function get_fontsdirectory() {
 
 function display_usageinfo() {
     msg="""Usage:
-   ${0:-APP_NAME} [-o|--outputfile PATH] [-d|--download-directory PATH] \\
+   ${APP_NAME} [-o|--outputfile PATH] [-d|--download-directory PATH] \\
         [-i|--incss-fontpath PATH] \\
         [-s|--subsets SUBSETSPEC] [-f|--formats FORMATSPEC] \\
         [-n|--skip-downloads] [-x|${label_skip_localsrc}] \\
@@ -121,7 +121,7 @@ function display_usageinfo() {
   font weight/style values. For example to use \"Open Sans\" in the
   regular font weight and style with the latin subset in the formats
   \`woff' and \`woff2' use:
-      ${0:-APP_NAME} \"Open Sans\"
+      ${APP_NAME} \"Open Sans\"
 
   FORMATSPECS should be one of the following presets, taken
   from https://css-tricks.com/snippets/css/using-font-face/:
