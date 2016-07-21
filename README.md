@@ -24,14 +24,15 @@ The command:
 ```
 
 will display `@font-face` CSS-at-rules for the "Open Sans" web font
-in the variations "*regular*" (`font-weight: 400; font-style:
-regular`), "*bold-italic* (`font-weight: 700; font-style: italic`) and
-"*light* (`font-weight: 300; font-style: regular`), in the
+in the variations *regular* (`font-weight: 400; font-style:
+regular`), *bold-italic* (`font-weight: 700; font-style: italic`) and
+*light* (`font-weight: 300; font-style: regular`), in the
 `latin`-subset, in the file formats of the *practical* superset
 (`woff` and `woff2`) as defined by
 https://css-tricks.com/snippets/css/using-font-face/. 
 
-Without options, the script will download the font to a temporary directory. 
+Without options, the script will download the font files to a
+temporary directory.
 
 ## Fully automated usage
 
