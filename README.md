@@ -1,4 +1,6 @@
-# best-served-local, aka "Yet Another Google Web Font Downloader written in bash"
+# best-served-local
+
+**aka "Yet Another Google Web Font Downloader written in bash"**
 
 ## Rationale
 
