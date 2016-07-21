@@ -110,7 +110,7 @@ function display_usageinfo() {
    ${0:-APP_NAME} [-o|--outputfile PATH] [-d|--download-directory PATH] \\
         [-i|--incss-fontpath PATH] \\
         [-s|--subsets SUBSETSPEC] [-f|--formats FORMATSPEC] \\
-        [-n|--skip-downloads] [-x|--skip-local-src-attr] \\
+        [-n|--skip-downloads] [-x|${label_skip_localsrc}] \\
         [-h||--help] \\
         FONTSPEC|CSSFILE
 
@@ -124,7 +124,7 @@ function display_usageinfo() {
   -d|--fontdirectory PATH  Path to the directory to download fonts to.
   -i|--incss-fontpath PATH Path used to reference font files within the css.
   -n|--no-downloads        Prevents the script from downloading web fonts.
-  -x|--skip-local          Prevents the inclusion of the 'local()' values.
+  -x|${label_skip_localsrc}          Prevents the inclusion of the 'local()' values.
   -f|--formats FORMATSPECS Comma-separated list of FORMATSPECS.
   -s|--subsets SUBSETSPEC  Comma-separated list of SUBSETS.
   ${label_overwrite_cssfile}      Overwrite existing css file.
@@ -264,7 +264,7 @@ function analyze_commandline_args() {
 		    continue
 		fi
 		;;
-	    -x|--skip-local-src-attr)
+	    -x|"${label_skip_localsrc}")
 		if [[ -n "${2:-}" ]]; then
 		    arg_skiplocal=True
 		    shift
@@ -787,6 +787,7 @@ nr_downloadfonts=0
 
 label_overwrite_cssfile="--overwrite-cssfile"
 label_overwrite_fonts="--overwrite-fonts"
+label_skip_localsrc="--skip-local"
 css_header=">>> script generated css starts here >>>"
 css_footer="<<< script generated css ends here <<<"
 
