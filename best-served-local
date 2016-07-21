@@ -852,6 +852,22 @@ if [[ $? -eq 0 ]]; then
 		a_msg_err+=("${msg}" )
 		arg_output_cssfile=/dev/stdout
 	    fi
+	else
+	    ## css file does not exist, try to create its parent directory
+	    cssdir="$(dirname "${arg_output_cssfile}")"
+	    if [[ -d "${cssdir}" ]]; then
+		if [[ ! -w "${cssdir}" ]]; then
+		    a_msg_err+=("- directory \`${cssdir}' is not writable.")
+		    arg_output_cssfile=/dev/stdout
+		fi
+	    else
+		## create the directory
+		res="$(mkdir -p "${cssdir}" 2>&1)"
+		if [[ $? -ne 0 ]]; then
+		    a_msg_err+=("- can create directory \`${cssdir}'.")
+		    arg_output_cssfile=/dev/stdout			
+		fi
+	    fi 
 	fi
     fi
 
