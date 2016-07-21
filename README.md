@@ -69,14 +69,16 @@ Run the script on your web server, together with valid values for
 fully automated powertool:
 
 ```bash
+
 ./best-served-local --incss-fontpath /static/fonts \
-  --outputfile /var/www/example.org/static/css/fontdefs.css \
-  --fontdirectory /var/www/example.org/static/fonts/
-  --overwrite-fonts \
-  --overwrite-cssfile \
-  --formats superprogressive \
-  --subsets latin-ext \
-  "Open Sans:300,400,700" "Roboto:100,100italic,regular,italic,900"
+--outputfile /var/www/example.org/static/css/fontdefs.css \
+--fontdirectory /var/www/example.org/static/fonts/
+--overwrite-fonts \
+--overwrite-cssfile \
+--formats superprogressive \
+--subsets latin-ext \
+"Open Sans:300,400,700" "Roboto:100,100italic,regular,italic,900"
+
 ```
 
 ## Some extra features
