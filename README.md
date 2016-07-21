@@ -33,7 +33,32 @@ Setting a value for the `--incss-fontpath` (or `-i`) argument will
 cause the resulting `url()` values in the `srv` attribute to use that
 as the path to the font file, eg using `-i ../static/fonts` will
 result in the following css:
-`url('../static/fonts/A_Web_Font_v1_latin.woff2')`.
+
+```css
+url('../static/fonts/A_Web_Font_v1_latin.woff2')
+```
+
+While omitting that option would result in:
+```css
+url('A_Web_Font_v1_latin.woff2')
+```
+
+## Fully automated usage
+
+Run the script on your web server, together with valid values for `--incss-fontpath`, `--outputfile`, `--fontdirectory` and the `--overwrite-fonts` and `--overwrite-cssfile` arguments to get a powerful fully automated powertool:
+
+```bash
+./best-served-local --incss-fontpath /static/fonts \
+  --outputfile /var/www/example.org/static/css/fontdefs.css \
+  --fontdirectory /var/www/example.org/static/fonts/
+  --overwrite-fonts \
+  --overwrite-cssfile \
+  --formats superprogressive \
+  --subsets latin-ext \
+  "Open Sans:300,400,700" "Roboto:100,100italic,regular,italic,900"
+```
+
+## Some extras 
 
 Using the `--skip-local` (or `-x`) argument will make the script skip
 the `local` references in the `src` attributes, which comes in handy
