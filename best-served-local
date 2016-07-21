@@ -1,0 +1,912 @@
+#!/usr/bin/env bash
+
+## `best-served-local' is a bash script that helps serving (Google)
+## web fonts from your own server, by creating valid css font-face
+## atrules and/or downloading the font files.
+##
+##  Copyright © 2016 Ronald van Engelen <ronalde+github@lacocina.nl>
+##  This program is free software: you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation, either version 3 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##  GNU General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+## The script, helpers and documentation are published at 
+## https://lacocina.nl/best-served-local
+##
+## Inspired by https://github.com/neverpanic/google-font-download.git and
+## https://github.com/neverpanic/google-font-download.git
+## 
+## Also see `README'
+
+## constants and defaults
+## font subsets to be downloaded, defaults to 'latin'
+DEF_ARG_SUBSETS="latin"
+## comma seperated list of font formats to be downloaded
+## defaults to 'practical' (eg 'woff & woff2')
+DEF_ARG_FONTFORMATS="practical"
+
+APP_NAME="best-served-local"
+APP_VERSION="0.1"
+APP_URL="https://lacocina.nl/best-served-local"
+
+GOOGLE_FONTAPI_URL="https://fonts.googleapis.com/css"
+
+function err_exit() {
+    ## display fatal error triggered by function $1 with description
+    ## $2 and exit with error
+    printf 1>&2 "%s\n" "$1"
+    printf 1>&2 "Run \`${0:-${APP_NAME}} -h' to see usage information.\n"
+    exit 1
+}
+
+function get_fontsdirectory() {
+    ## check the user specified directory for storing the fontfiles
+    ## and create it if neccessary, or create a temporary
+    ## directory. returns the path to the directory or an error with
+    ## description.
+
+    declare -a a_msg_err
+    msg=
+    
+    if [[ "${arg_fonts_dir}x" == "x" ]]; then
+	## no font directory specified, create a temporary one
+	arg_fonts_dir="$(mktemp -dt ${APP_NAME}.XXXX)"
+	if [[ $? -ne 0 ]]; then
+	    a_msg_err+=("- could not create a temporary font directory.")
+	fi
+    else
+	## font directory specified, check if it is exists
+	if [[ ! -d "${arg_fonts_dir}" ]]; then
+	    ## it doesn't; create it
+	    res="$(mkdir -pv "${arg_fonts_dir}" 2>&1)"
+	    if [[ $? -ne 0 ]]; then
+		msg="- unable to create font directory '${arg_fonts_dir}'; "
+		msg+="\`mkdir' returned: '${res}'"
+		a_msg_err+=("${msg}")
+	    fi
+	else
+	    if [[ ! -w "${arg_fonts_dir}" ]]; then
+		a_msg_err+=("- specified directory '${arg_fonts_dir}' is not writable.")
+	    fi
+	fi
+    fi
+
+    if [[ ${#a_msg_err[@]} -gt 0 ]]; then
+	printf "The following error occured:\n%s\n" "${a_msg_err[@]}"
+	return 1
+    else 
+	## return its path
+	printf "%s" "${arg_fonts_dir}"
+    fi
+    
+}
+
+
+function check_sanity() {
+    declare -a msg_err
+    msg=
+
+
+    ## check paths
+
+    if [[ ${#a_msg_err[@]} -gt 0 ]]; then
+	printf 1>&2 "%s\n" "The following (fatal) errors occured:"
+	printf 1>&2 "${a_msg_err[@]}\n"
+	return 1
+    fi
+}
+
+
+function display_usageinfo() {
+    msg="""Usage:
+   ${0:-APP_NAME} [-o|--outputfile PATH] [-d|--download-directory PATH] \\
+        [-i|--incss-fontpath PATH] \\
+        [-s|--subsets SUBSETSPEC] [-f|--formats FORMATSPEC] \\
+        [-n|--skip-downloads] [-x|--skip-local-src-attr] \\
+        [-h||--help] \\
+        FONTSPEC|CSSFILE
+
+  With default settings, a CSS2/3 font-face atrule is printed to
+  std_out and the font files are downloads to a temporary
+  directory. Errors and warnings are printed to std_err, so it should
+  be save to redirect the output.
+
+  OPTIONAL ARGUMENTS
+  -o|--outputfile PATH     Path to the file to save the CSS in.
+  -d|--fontdirectory PATH  Path to the directory to download fonts to.
+  -i|--incss-fontpath PATH Path used to reference font files within the css.
+  -n|--no-downloads        Prevents the script from downloading web fonts.
+  -x|--skip-local          Prevents the inclusion of the 'local()' values.
+  -f|--formats FORMATSPECS Comma-separated list of FORMATSPECS.
+  -s|--subsets SUBSETSPEC  Comma-separated list of SUBSETS.
+  ${label_overwrite_cssfile}      Overwrite existing css file.
+  ${label_overwrite_fonts}    Overwrite existing font files.
+  -h|--help                Show this help message and exit.
+
+  FONTSPEC should be space separated list of family names, with
+  optional suffix consisting of \`:' with a comma separated list of
+  font weight/style values. For example to use \"Open Sans\" in the
+  regular font weight and style with the latin subset in the formats
+  \`woff' and \`woff2' use:
+      ${0:-APP_NAME} \"Open Sans\"
+
+  FORMATSPECS should be one of the following presets, taken
+  from https://css-tricks.com/snippets/css/using-font-face/:
+  - \`superprogressive': \`woff2'
+  - \`practical':        superprogressive + \`woff'
+  - \`slightlydeeper':   practical + \`ttf'
+  - \`all':              all of the above + \`odt' and \`svg'.
+
+  For extensive documentation and usage examples, see:
+  ${APP_URL}
+
+  ${APP_NAME} Copyright (C) 2016 Ronald van Engelen (See LICENSE).
+"""
+    printf 1>&2 "%s\n" "${msg}"
+    exit
+}
+
+
+function err_invalid_arg() {
+    ## inform user about an invalid value ($2) for commandline argument ($1)
+    argument="$1"
+    value="$2"
+    ## construct string containing valid values for specified argument
+    msg_valid="$(msg_valid_argumentvalues "${argument#-*}")"
+    case "${value}x" in
+	 "x")
+	     a_warnings=+=("$(printf "\- empty value for argument '%s' specified.\n" \
+			 "${argument}")")
+	     a_warnings=+=("$(printf "%s\n" "${msg_valid}")")
+	     ;;
+	 "0x")
+	     ## special case, return the string to calling function
+	     a_warnings+=("$(printf "none of the specified value(s) for argument '%s' are valid.\n" \
+		    "${argument}")")
+	     a_warnings+=("$(printf "%s\n" "${msg_valid}")")
+	     ;;
+	 *)
+	     a_warnings+=("$(printf "\- invalid value '%s' for argument '%s' specified.\n" \
+			 "${value}" "${argument}")")
+	     a_warnings+=("$(printf "%s\n" "${msg_valid}")")
+	     ;;
+    esac
+}
+
+
+function msg_valid_argumentvalues() {
+    ## construct and return string with valid values for commandline argument $1
+    argument="$1"
+    case ${argument#-*} in
+	f|format|arg_fontformats)
+	    printf "\tMust be 'superprogressive', 'practical',
+	    'slightlydeeper' or 'all', or one or more of "
+	    values="$(printf "%s," "${valid_fontformats[@]}")"
+	    printf "%s\n" "${values%*,}"
+	    ;;
+	l|subsets|arg_subsets)
+	    printf "\tMust be 'all' or one or more of: "
+	    values="$(printf "%s," "${valid_subsets[@]}")"
+	    printf "%s\n" "${values%*,}"
+	    ;;
+    esac
+}
+
+
+function analyze_commandline_args() {
+    ## parse command line arguments using the `manual loop` method
+    ## described in http://mywiki.wooledge.org/BashFAQ/035.
+    while :; do
+        case "${1:-}" in
+            -o|--outputfile)
+		if [[ -n "${2:-}" ]]; then
+		    arg_output_cssfile="${2}"
+		    shift 2
+                    continue
+		else
+		    err_invalid_arg "$1" "$2"		    
+                    return 1
+		fi
+		;;
+            -d|--download-directory)
+		if [[ -n "${2:-}" ]]; then
+		    arg_fonts_dir="${2}"
+		    shift 2
+                    continue
+		else
+		    err_invalid_arg "$1" "$2"		    
+		    return 1
+		fi
+		;;
+            -i|--incss-fontpath)
+		if [[ -n "${2:-}" ]]; then
+		    arg_incss_fontsdir="${2}"
+		    shift 2
+                    continue
+		else
+		    err_invalid_arg "$1" "$2"		    
+		    return 1
+		fi
+		;;
+	    -s|--subsets|-l)
+		## -l for compatibility with google-font-download from neverpanic
+		if [[ -n "${2:-}" ]]; then
+		    arg_subsets="${2}"
+		    shift 2
+                    continue
+		else
+		    err_invalid_arg "$1" "$2"
+		    return 1
+		fi
+		;;
+	    -f|--formats)
+		if [[ -n "${2:-}" ]]; then
+		    arg_fontformats="${2}"
+		    shift 2
+                    continue
+		else
+		    err_invalid_arg "$1" "$2"		    		    
+		    return 1
+		fi
+		;;
+	    -n|--no-downloads)
+		if [[ -n "${2:-}" ]]; then
+		    arg_skipdownload=True
+		    shift
+		    continue
+		fi
+		;;
+	    -x|--skip-local-src-attr)
+		if [[ -n "${2:-}" ]]; then
+		    arg_skiplocal=True
+		    shift
+		    continue
+		fi
+		;;
+	   "${label_overwrite_cssfile}")
+		if [[ -n "${2:-}" ]]; then
+		    arg_forceoverwrite_cssfile=True
+		    shift
+		    continue
+		fi
+		;;
+	    "${label_overwrite_fonts}")
+		if [[ -n "${2:-}" ]]; then
+		    arg_forceoverwrite_fontfiles=True
+		    shift
+		    continue
+		fi
+		;;
+	    -h|-\?|--help) 
+		display_usageinfo
+		exit
+		;;
+            --)
+		## comma seperated list of fonts (eg 'font:weight(slant) font2:weight(slant)')
+		##echo &>2 "-- reached: @ = '$@'"
+		shift
+		#opt_rest="$@"
+		break
+		;;
+	   -?*)
+	       printf 1>&2 "Notice: unknown option \`%s' ignored\n\n" "$1" 1>&2
+               display_usageinfo
+	       exit
+               ;;
+           *)
+               break
+        esac
+    done
+    ## shift the options index to get the remainder of the command
+    ## line arguments containing the font descriptions
+    ## and return them as 0-seperated strings.
+    shift $(($OPTIND - 1))
+    arg_fontspecs="$(printf "%s\n" "$@")"
+}
+
+
+function generate_css() {
+    ## return a complete font-face css rule
+    cssattr_font_family="$1"
+    cssattr_font_style="$2"
+    cssattr_font_weight="$3"
+    cssattr_src_local_nonps="$4"
+    cssattr_src_local_ps="$5"
+    cssattr_src_urlformats="$6"
+    eot_src_attr="${7}"
+
+    declare -a a_src_local_lines
+
+    ## start the output template
+    font_face_template="""\
+@font-face {
+   font-family: '%s';
+"""
+    ## check if the special ie9 quirk workaround should be applied
+    if [[ "${eot_src_attr}x" != "x" ]]; then
+	font_face_template+="$(printf "   %s\n" "${eot_src_attr}")"
+    fi
+    ## start the src attribute
+    font_face_template+="""\
+   src: 
+"""
+    ## check if the local property/properties should be set
+    if [[ "${arg_skiplocal}x" == "x" ]]; then 
+	if [[ "${cssattr_src_local_nonps}x" != "x" ]]; then
+	    src_local_attrs+=("local('${cssattr_src_local_nonps}')")
+	fi 
+	if [[ "${cssattr_src_local_ps}x" != "x" ]]; then
+	    src_local_attrs+=("local('${cssattr_src_local_ps}')")
+	fi
+	if [[ ${#src_local_attrs[@]} -gt 0 ]]; then
+	    src_local_line="$(printf "%s, " "${src_local_attrs[@]}")"
+	    font_face_template+="""\
+        ${src_local_line}
+"""
+	fi 
+    fi
+    ## append the rest of the template; the first %s is used to insert
+    ## 'url() format()' lines
+    font_face_template+="""\
+%s
+   font-style:  %s;
+   font-weight: %s;
+}
+"""
+    ## return the filled-in template to the calling function
+    printf "${font_face_template}" \
+		"${cssattr_font_family}" \
+		"${cssattr_src_urlformats}" \
+		"${cssattr_font_style}" \
+		"${cssattr_font_weight}"
+}
+
+
+function download_fontfile() {
+    ## download the font file from url ($1), save it locally in
+    ## directory $3 with filename $2.
+    url="$1"
+    filename="$2"
+    ## construct the full path
+    outputpath="${checked_dir}/${filename}"
+    if [[ -f "${outputpath}" ]]; then
+	## return the filename and a specific error
+	printf "${outputpath}"
+	return 1
+    fi
+    curl_args=(--get \
+		   --silent \
+		   #--verbose \
+		   --show-error \
+		   --fail)
+    res="$(${cmd_curl} "${curl_args[@]}" "${url}" -o "${outputpath}" 2>&1)"
+    if [[ $? -ne 0 ]]; then
+	errors=1
+	printf "%s curl error downloading font: '%s'" "${FUNCNAME}" "${res}"
+	return 3
+    else
+	printf "succesfully downloaded font file to '%s' in directory '%s'." \
+	       "${filename}" "${checked_dir}"
+    fi
+}
+
+
+function httpget_atrule_google() {
+    # validates the chosen combination of font and language subset at
+    # google using curl, and returns the resulting font-face atrule to
+    # the calling function, or exits with error
+    fontname="$1"
+    fontstyle="$2"
+    fontcharset="$3"
+    fontformat="${4:-x}" ## only used in the second iteration
+    fontfamily="${fontname}:${fontstyle}"
+
+    ## set curl arguments
+    ret=
+    curl_args=(--get \
+		   --silent \
+		   #--verbose \
+		   --show-error \
+		   --fail \
+		   --data-urlencode "family=${fontfamily}" \
+		   --data-urlencode "subset=${fontcharset}")
+    ## in the second iteration, the fonts' file format is specified,
+    ## which will be used to mimic a certian user agent
+    if [[ "${fontformat}x" != "xx" ]]; then
+	curl_args+=(--user-agent "'${useragent[${fontformat}]}'")
+    fi
+    cssattr_font_face="$(${cmd_curl} "${curl_args[@]}" "${GOOGLE_FONTAPI_URL}" 2>&1)" || ret=$?
+    if [[ ${ret} -ne 0 ]]; then
+	errors=1
+	printf "%s error: %s\n" "${FUNCNAME}" "${cssattr_font_face}"
+	return 1
+    else
+	## return the complete font-face atrule
+	printf "%s" "${cssattr_font_face}"
+    fi
+}
+
+
+function validate_arg_fontformats() {
+    ## validate the font formats specified by the user in $1
+    ## against valid_fontformats. returns error with description if no
+    ## choice could be validated.
+
+    ## convert comma seperated arguments into array
+    a_fontformats=( ${1//,/ } )
+    case "${a_fontformats[@]}x" in 
+	allx)
+     	    ## argument is 'all'; add all available formats to array
+	    a_checked_fontformats=( ${valid_fontformats[@]} )
+	    ;;
+	x|practicalx)
+	    ## argument is empty or 'practical'
+	    a_checked_fontformats=( ${practical_fontformats[@]} )
+	    ;;
+	*deeper*x)
+	    a_checked_fontformats=( ${slightlydeeper_fontformats[@]} )
+	    ;;
+	*progressive*x)
+	    a_checked_fontformats=( ${superprogressive_fontformats[@]} )
+	    ;;
+	*)
+	    ## user specified formats, try to iterate the array
+	    for fontformat in ${a_fontformats[@]}; do
+		if [[ "${fontformat}x" == "allx" ]]; then
+		    a_checked_fontformats+=( ${valid_fontformats[@]} )
+		    continue
+		else
+		    if [[ ${valid_fontformats[@]} =~ "${fontformat}" ]]; then
+			a_checked_fontformats+=( "${fontformat}" )
+		    else
+			## invalid format specified
+			err_invalid_arg "arg_fontformats" "${fontformat}"
+		    fi
+		fi
+	    done
+	    ;;
+    esac
+    if [[ ${#a_checked_fontformats[@]} -eq 0 ]]; then
+	## return error with description to the calling function	
+	printf "no single valid font format chosen"
+	return 1
+    else
+	## return the array as a space seperated list
+	printf "%s " "${a_checked_fontformats[@]}"
+    fi
+}
+
+
+function validate_arg_subsets() {
+    ## validate the subsets specified by the user in $1
+    ## against valid_subsets. returns error with description if no
+    ## choice could be validated.
+
+    ## convert comma seperated arguments into array
+    a_subsets=( ${1//,/ } )
+    if [[ "${a_subsets[@]}" =~ all ]]; then
+	## when 'all' is chosen skip any other
+	a_checked_subsets+=( "all" )
+    else 
+	for charset in ${a_subsets[@]}; do
+	    if [[ ${valid_subsets[@]} =~ "${charset}" ]]; then   
+		a_checked_subsets+=("${charset}")
+	    else
+		err_invalid_arg "arg_subsets" "${charset}"
+	    fi
+	done
+    fi
+    ## return error with description to the calling function
+    if [[ ${#a_checked_subsets[@]} -eq 0 ]]; then
+	printf "no single valid charset chosen"
+	return 1
+    else
+	printf "%s " "${a_checked_subsets[@]}"
+    fi
+}
+
+
+function process_atrule() {
+    ## process the supplied fontface atrule ($1), by extracting all
+    ## its attributes, adding the font file name and url for each
+    ## format/charset to the a_downloads array, and storing the
+    ## resulting css in the temporary variable 'temp_atrule'.
+    cssattr_font_face="$1"
+    cssattr_font_family=""
+    cssattr_font_weight=""
+    cssattr_font_style=""
+    cssattr_src=""	
+    cssattr_src_local_nonps=
+    cssattr_src_local_ps=
+    cssattr_src_url=
+    ## initialize for later use
+    download_url=
+    font_version=""
+    a_url_format_attrs=()
+
+    ## setup regular expressions to match css attributes and to
+    ## determine their values
+    re_font_family="font-family:[[:space:]]*'(.*)';"
+    re_font_weight="font-weight:[[:space:]]*(.*);"
+    re_font_style="font-style:[[:space:]]*(.*);"
+    re_src="src:[[:space:]]*(.*);"
+    re_src_local="local\([']?(.*)[']?\)"
+    ## matches only the url value 'url(...)' not the optional trailing
+    ## 'format(...)'
+    re_src_url="url\(([^[:space:]]*)\)"
+    ## matches only 'format(...)'
+    re_src_url_format="${re_src_url}[[:space]]*format\(([^[:space]]*)\)"
+    re_src_url_version="/(v[0-9]*)/"
+
+    ## process the (newline seperated) font-face atrule
+    while read -r line; do
+	if [[ "${line}" =~ ${re_font_family} ]]; then
+	    ## font-family attribute
+	    cssattr_font_family="${BASH_REMATCH[1]}"
+	elif [[ "${line}" =~ ${re_font_weight} ]]; then
+	    ## font-weight attribute
+	    cssattr_font_weight="${BASH_REMATCH[1]}"
+	    ## determine if it is multi-valued (comma seperated)
+	    weightprops_escaped="${cssattr_font_weight//,/ /}"
+	    weightprops=( ${weightprops_escaped} )
+	    ## store the number of weights
+	    num_weightprops=${#weightprops[@]}
+	elif [[ "${line}" =~ ${re_font_style} ]]; then
+	    ## font-style attribute
+	    cssattr_font_style="${BASH_REMATCH[1]}"
+	elif [[ "${line}" =~ ${re_src} ]]; then
+	    ## src attribute
+	    cssattr_src="${BASH_REMATCH[1]}"	
+	fi
+    done<<<"${cssattr_font_face}"
+
+    ## parse the src attribute to extract the 'local' font family
+    ## values for both the non-PS and PS family name, and the
+    ## 'url(...) format(...)' values for the version of the font
+    while IFS=, read local_nonps local_ps url_format; do
+	[[ "${local_nonps}" =~ ${re_src_local}  ]] &&
+	    cssattr_src_local_nonps="${BASH_REMATCH[1]}"
+	[[ "${local_ps}" =~ ${re_src_local} ]] && \
+	    cssattr_src_local_ps="${BASH_REMATCH[1]}"
+	[[ "${url_format}" =~ ${re_src_url} ]] && \
+	    cssattr_src_url="${BASH_REMATCH[1]}"
+    done<<<"${cssattr_src}"
+    ## remove single quotes if any
+    cssattr_src_local_nonps="${cssattr_src_local_nonps//\'/}"
+    cssattr_src_local_ps="${cssattr_src_local_ps//\'/}"
+    ## create a label for saving and referencing the font file
+    if [[ "${cssattr_src_local_nonps}x" == "x" ]]; then
+	## local attribute not set; use the font family
+	base_localname="${cssattr_font_family}"
+    else
+	## use the escaped local (non PS) attribute
+	base_localname="${cssattr_src_local_nonps}"
+    fi
+    base_localname="${base_localname// /_}"
+    ## try to get the version from the url, otherwise leave empty
+    if [[ "${cssattr_src_url}" =~ ${re_src_url_version} ]]; then
+	font_version="${BASH_REMATCH[1]}_"
+    fi
+   
+    ## process each format/charset 
+    for fontformat in ${a_checked_fontformats[@]}; do
+	for charset in ${a_checked_subsets[@]}; do
+	    add_eot_src_attr=
+	    cssattr_font_face="$(httpget_atrule_google \
+		"${cssattr_font_family}" \
+		"${cssattr_font_style}" \
+		"${charset}" \
+		"${fontformat}")"
+	    ## determine and set the filename's extension, suffix
+	    ## (part after the extension) and other quirk workarounds
+	    suffix=
+	    label_format="${fontformat}"
+	    extension="${fontformat}"
+	    case ${fontformat} in
+		ttf|truetype)
+		    ## replace 'ttf' with 'truetype' if applicable
+		    label_format="truetype"
+		    extension="ttf"
+		    ;;
+		svg*)
+		    ## agents capable of using svg(z) fonts, gather the
+		    ## font family from the suffix after the extension
+		    ## and a hash sign with spaces removed, eg.
+		    ## 'fontfile.ext#FontFamily'.
+		    suffix="#${cssattr_font_family// /}"
+		    ;;
+		eot*)
+		    ## 'fontfile.ext?iefix'.
+		    label_format="embedded-opentype"
+		    suffix="?iefix"
+		    add_eot_src_attr=True
+		    ;;		
+	    esac
+
+	    ## construct the filename
+	    filename="${base_localname}_${font_version}${charset}_${cssattr_font_weight}.${extension}"
+   
+	    url_format_template="        url('%s') format('%s'),\n"
+	    if [[ "${add_eot_src_attr}x" != "x" ]] && [[ "${fontformat}" = "eot" ]]; then
+		## prepend the final src variable with the ie9 quirk workaround
+		eot_src_attr="src: url('${filename}');\n"
+	    fi
+	    if [[ "${arg_incss_fontsdir}x" = "x" ]]; then 
+		a_url_format_attrs+=("$(printf "${url_format_template}" \
+"${filename}${suffix}" "${label_format}")")
+	    else
+		## prefix the filename with the incss font path; if the
+		## user specified a path with a trailing slash, remove
+		## it
+		a_url_format_attrs+=("$(printf "${url_format_template}" \
+"${arg_incss_fontsdir%/}/${filename}${suffix}" "${label_format}")")
+	    fi
+
+	    if [[ "${arg_skipdownload}x" == "x" ]]; then
+		## download the web font(s)
+		## get the url for this format/charset
+    		if [[ "${cssattr_font_face}" =~ ${re_src_url} ]]; then
+		    download_url="${BASH_REMATCH[1]}"
+		else
+		    printf 1>&2 "BUG: can't extract url from src attribute=\n###\n%s\n###\n" \
+				"${cssattr_font_face}"
+		    ## try the next charset
+		    continue
+		fi
+
+		## add an array item
+		a_downloads[${filename}]="${download_url}"
+	    fi
+	done 
+    done
+    ## convert array to multi-lined string
+    cssattr_src_urlformats="$(printf "%s\n" "${a_url_format_attrs[@]}")"
+    ## replace last comma with semi-colon
+    cssattr_src_urlformats="${cssattr_src_urlformats%?};"
+    ## generate the atrule and add it to the temp variable
+    res=$(generate_css \
+	      "${cssattr_font_family}" \
+	      "${cssattr_font_style}" \
+	      "${cssattr_font_weight}" \
+	      "${cssattr_src_local_nonps}" \
+	      "${cssattr_src_local_ps}" \
+	      "${cssattr_src_urlformats}" \
+	      "${eot_src_attr}")
+    temp_atrule="$(printf "%s\n" "${res}")"
+}
+
+
+
+function create_atrules() {
+    ## process each item in the fontspecs array, create the proper css
+    ## atrule for it and store it in the a_atrules_created array.
+ 
+    ## setup basic regexp matching
+    family_re="(.*):(.*)"
+    for family in "${a_arg_fontspecs[@]}"; do
+	if [[ "${family}" =~ ${family_re} ]]; then
+	    fontname="${BASH_REMATCH[1]}"
+	    ## construct array from second match, by replacing commas
+	    ## (if any) by spaces to get the requested font styles
+	    styles=( ${BASH_REMATCH[2]//,/ } )
+	else
+	    ## font spec without style; append 'regular'
+	    fontname="${family}"
+	    styles=( regular )
+	fi
+	## iterate the array and process each name/style pair
+	for fontstyle in "${styles[@]}"; do
+	    ## check the validity of the specified name/value pair
+            ## (eg. 'Font_Name:weightx,weighty') and get and return it's
+	    ## font-face atrule
+	    atrule="$(httpget_atrule_google \
+"${fontname//\'/}" "${fontstyle//\'/}" "${a_checked_subsets[@]}")"
+
+	    if [[ $? -ne 0 ]]; then
+		## add the invalid specification to the array
+		a_invalid_specs+=("- '${fontname}:${fontstyle}'" )
+	    else
+		## process the fontface atrule for the chosen fontname:fontstyle
+		## the result is stored in temp_atrule
+		temp_atrule=""
+		process_atrule "${atrule}"
+		if [[ $? -ne 0 ]]; then
+		    printf 1>&2 "BUG: error processing atrule:\n%s\nerror was:\n''\n" \
+			   "${atrule}" "${res}"
+		    return 1
+		else
+		    ## add the atrule for this fontspec to the array
+		    a_atrules_created+=("$(printf "%s\n" "${temp_atrule}")")
+		fi
+	    fi
+	done
+    done
+    
+}
+
+## path to css file
+arg_output_cssfile="${arg_output_cssfile:-}"
+## font download directory
+arg_fonts_dir="${arg_fonts_dir:-}"
+## commandline argument -s/--skip-download
+arg_skipdownload="${arg_skipdownload:-}"
+## commandline argument -x/--skip-local-src-attr
+arg_skiplocal="${arg_skiplocal:-}"
+## comma seperated list of font subsets to be downloaded, defaults to latin
+arg_subsets="${arg_subsets:-${DEF_ARG_SUBSETS}}"
+## comma seperated list of font formats to be downloaded
+## defaults to 'practical' (eg 'woff & woff2')
+arg_fontformats="${arg_fontformats:-${DEF_ARG_FONTFORMATS}}"
+arg_forceoverwrite_cssfile="${arg_forceoverwrite_cssfile:-}"
+arg_forceoverwrite_fontfiles="${arg_forceoverwrite_fontfiles:-}"
+
+## initialize arrays for storing validated selections
+## array to hold the commandline font specification(s)
+declare -a a_arg_fontspecs
+declare -A a_downloads
+declare -a a_checked_fontformats
+declare -a a_checked_subsets
+declare -a a_checked_fontspecs
+declare -a a_atrules_created
+declare -a a_warnings
+declare -a a_msg_err
+declare a_temp_atrule
+declare checked_dir
+
+
+## valid choices
+valid_subsets=(cyrillic cyrillic-ext greek greek-ext latin latin-ext vietnamese all)
+valid_fontformats=(eot woff woff2 svg ttf)
+## supersets of font formats, taken from:
+## https://css-tricks.com/snippets/css/using-font-face/
+superprogressive_fontformats=("woff2")
+practical_fontformats=( ${superprogressive_fontformats[@]} "woff")    
+slightlydeeper_fontformats=( ${practical_fontformats[@]} "ttf" )
+
+# Store the useragents we're going to use to trick Google's servers
+# into serving us the correct CSS file.
+declare -A useragent
+useragent[eot]='Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0)'
+useragent[woff]='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:27.0) Gecko/20100101 Firefox/27.0'
+useragent[woff2]='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.0'
+useragent[svg]='Mozilla/4.0 (iPad; CPU OS 4_0_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/4.1 Mobile/9A405 Safari/7534.48.3'
+useragent[svgz]="${useragent[svg]}"
+useragent[ttf]='Mozilla/5.0 (Windows NT 6.1) AppleWebKit/534.54.16 (KHTML, like Gecko) Version/5.1.4 Safari/534.54.16'
+
+a_invalid_specs=()
+a_fonts_exists=()
+nr_downloadfonts=0
+
+label_overwrite_cssfile="--overwrite-cssfile"
+label_overwrite_fonts="--overwrite-fonts"
+css_header=">>> script generated css starts here >>>"
+css_footer="<<< script generated css ends here <<<"
+
+## main program flow
+
+## analyze and store all commandline arguments
+analyze_commandline_args "$@" || exit 1
+## store each fontspec in arg_fontspec (set by
+## analyze_commandline_args) in an array
+while read family; do
+    if [[ "${family}x" != "x" ]]; then
+	a_arg_fontspecs+=( "${family}" )
+    fi
+done<<<"${arg_fontspecs}" 
+## check commandline fontformats (applicable for all fontspecs)
+if [[ ${#a_arg_fontspecs[@]} -gt 0 ]]; then 
+    a_checked_fontformats=( $(validate_arg_fontformats "${arg_fontformats}") )
+    res="$?"
+fi 
+if  [[ ${res} -ne 0 ]] || [[ ${#a_arg_fontspecs[@]} -eq 0 ]]; then
+    err_exit "Error: no valid FONTSPEC supplied."
+fi
+
+## check commandline subsets (applicable for all fontspecs)
+a_checked_subsets=( $(validate_arg_subsets "${arg_subsets}") )
+if [[ $? -ne 0 ]]; then
+    err_exit "Error: no valid SUBSET supplied."
+fi
+## check if curl is installed
+cmd_curl=$(type -p curl)
+if [[ $? -ne 0 ]]; then
+    printf 1>&2 "Error: required command \`curl' not found.\n"
+    exit 1
+fi
+
+## check the output directory if applicable
+if [[ "${checked_dir}x" == "x" ]]; then
+    checked_dir="$(get_fontsdirectory "${directory}")"
+    if [[ $? -ne 0 ]]; then
+	## checked_dir contains error message, display it
+	printf "${checked_dir}\n"
+	exit 1
+    fi
+fi
+## for each valid fontspec create a valid atrule (stored in a_atrules)
+res=0
+create_atrules
+if [[ $? -eq 0 ]]; then
+    if [[ ${#a_invalid_specs[@]} -gt 0 ]] || [[ ${#a_fonts_alreadydownloaded[@]} -gt 0 ]]; then
+	a_msg_err+=("Notice::\n")
+	if [[ ${#a_invalid_specs[@]} -gt 0 ]]; then
+	    a_msg_err+=("\tCould not process the following font specifications:\n")
+	    a_msg_err+=("$(printf 1>&2 "\t %s\n" "${a_invalid_specs[@]}")")
+	fi
+	if [[ ${#a_fonts_alreadydownloaded[@]} -gt 0 ]]; then
+	    a_msg_err+=("\tThe following font files were not overwritten :\n")
+	    a_msg_err+=("$(printf 1>&2 "\t %s\n" "${a_fonts_alreadydownloaded[@]}")")
+	fi
+    fi
+    ## check if an css output file is specified, if so if it exists,
+    ## and whether it should be overwritten
+    if [[ "${arg_output_cssfile}x" == "x" ]]; then
+	arg_output_cssfile=/dev/stdout
+    else 
+	if [[ -f "${arg_output_cssfile}" ]]; then
+	    ## css file already exists
+	    if [[ "${arg_forceoverwrite_cssfile}x" == "x" ]]; then
+		## do not overwrite the css file
+		msg="- not overwriting existing css file \`"${arg_output_cssfile}"' \
+(tip: use \`${label_overwrite_cssfile}')."
+		printf 1>&2  "bla: ${msg}\n" 
+		a_msg_err+=("${msg}" )
+		arg_output_cssfile=/dev/stdout
+	    fi
+	fi
+    fi
+
+    if [[ ${#a_atrules_created[@]} -gt 0 ]]; then
+	printf "/* %s */\n" "${css_header}" > "${arg_output_cssfile}"
+	for atrule in "${a_atrules_created[@]}"; do 
+	    printf "%s\n" "${atrule}" >> "${arg_output_cssfile}"
+	done 
+	printf "/* %s */\n" "${css_footer}" >> "${arg_output_cssfile}"
+	## download the font files if applicable
+	if [[ "${arg_skipdownload}x" == "x" ]]; then 
+	    printf 1>&2 "Downloading font files " 
+	    for filename in "${!a_downloads[@]}"; do
+		res="$(download_fontfile "${a_downloads[${filename}]}" "${filename}")"
+		## consider failed download non-fatal
+		case $? in
+		    0) printf 1>&2 "." ;;
+		    1) a_fonts_exists+=("- not overwriting \`${res}'") ;; 
+		    2) a_msg_err+=("$(printf 1>&2 "%s\n" "${res}")") ;;
+		    3) a_msg_err+=("error downloading font file: ${res}") ;;		    
+		esac
+	    done
+	    if [[ ${#a_fonts_exists[@]} -gt 0 ]]; then 
+		nr_downloadfonts=$(( ${#a_downloads[@]} - ${#a_fonts_exists[@]} ))
+		printf 1>&2 " ... %s done (%s not overwritten).\n" \
+			    "${nr_downloadfonts}" "${#a_fonts_exists[@]}"
+	    else 
+		printf 1>&2 "%s done.\n" "${#a_downloads[@]}"
+	    fi
+	    printf 1>&2 "* fonts available in: \`%s'\n" "${checked_dir}"
+	    if [[ ${#a_msg_err[@]} -gt 0 ]]; then
+		printf 1>&2 "Warnings:\n"
+		printf 1>&2 "%s\n" "${a_msg_err[@]}"
+	    else
+		if [[ "${arg_output_cssfile}" != "/dev/stdout" ]]; then
+		    printf 1>&2 "* css file saved in:  \`%s'\n" "${arg_output_cssfile}"
+		fi
+	    fi
+	fi 
+    else
+	printf 1>&2 "\nError: no valid fontspec found.\n"
+	printf 1>&2 "Please check your commandline arguments and try again.\n"
+	exit 1
+    fi
+else 
+    printf 1>&2 "Fatal errors occured:\n"
+    printf "%s\n" "$?"
+    exit 1
+fi
