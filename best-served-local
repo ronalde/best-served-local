@@ -99,7 +99,7 @@ function display_usageinfo() {
         [-h||--help] \\
         FONTSPEC|CSSFILE
 
-  With default settings, a CSS2/3 font-face atrule is printed to
+  With default settings, a CSS3 @font-face atrule is printed to
   std_out and the font files are downloads to a temporary
   directory. Errors and warnings are printed to std_err, so it should
   be save to redirect the output.

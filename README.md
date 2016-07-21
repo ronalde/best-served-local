@@ -3,13 +3,14 @@
 ## Rationale
 
 Inspired by
-[google-font-download](https://github.com/neverpanic/google-font-download.git) (also in bash 4)
-and
-[google-webfonts-helper](https://google-webfonts-helper.herokuapp.com/fonts) (node-js)
-I developed this script to make it easy to automate (via cron and
-such) the downloading of remote web fonts and the creation of high
-quality css<sup><a href="#bulletproof">1</a></sup> for serving from my
-own webserver.
+[google-font-download](https://github.com/neverpanic/google-font-download.git)
+(also in bash 4) and
+[google-webfonts-helper](https://google-webfonts-helper.herokuapp.com/fonts)
+(node-js) I developed this script to make it easy to automate (via
+cron and such) the downloading of remote web fonts and the creation of
+high quality
+[@font-face css3 rules](https://www.w3.org/TR/css-fonts-3/#font-face-rule)<sup><a
+href="#bulletproof">1</a></sup> for serving from my own webserver.
 
 Apart from [bash](https://www.gnu.org/software/bash/) version 4, this
 script only depends on [curl](https://curl.haxx.se/).  (It's not
@@ -23,7 +24,7 @@ The command:
 ./best-served-local "Open Sans:400;bolditalic;light" "Some other webfont"
 ```
 
-will display `@font-face` CSS-at-rules for the "Open Sans" web font
+will display `@font-face` css at-rules for the "Open Sans" web font
 in the variations *regular* (`font-weight: 400; font-style:
 regular`), *bold-italic* (`font-weight: 700; font-style: italic`) and
 *light* (`font-weight: 300; font-style: regular`), in the
@@ -81,7 +82,7 @@ fully automated powertool:
 ## Some extra features
 
 Setting a value for the `--incss-fontpath` (or `-i`) argument will
-cause the resulting `url()` values in the `srv` attribute to use that
+cause the resulting `url()` values in the `src` attribute to use that
 as the path to the font file, eg using `-i ../static/fonts` will
 result in the following css:
 
