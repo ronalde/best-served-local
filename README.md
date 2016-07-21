@@ -82,7 +82,7 @@ best-served-local [-o|--outputfile PATH] [-d|--fontdirectory PATH] \
       [-s|--subsets SUBSETSPEC] [-f|--formats FORMATSPEC] \
       [-n|--skip-downloads] [-x|--skip-local] \
 	  [--overwrite-cssfile] [--overwrite-fonts] \
-      [-h||--help] \
+      [-h|--help] \
       FONTSPEC
 ```
 

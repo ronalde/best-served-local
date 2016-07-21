@@ -19,12 +19,12 @@
 ##  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 ## The script, helpers and documentation are published at 
-## https://lacocina.nl/best-served-local
+## https://lacocina.nl/using-best-served-local
 ##
 ## Inspired by https://github.com/neverpanic/google-font-download.git and
 ## https://github.com/neverpanic/google-font-download.git
 ## 
-## Also see `README'
+## Also see `README.md'
 
 ## constants and defaults
 ## font subsets to be downloaded, defaults to 'latin'
@@ -35,7 +35,7 @@ DEF_ARG_FONTFORMATS="practical"
 
 APP_NAME="best-served-local"
 APP_VERSION="0.1"
-APP_URL="https://lacocina.nl/best-served-local"
+APP_URL="https://lacocina.nl/using-${APP_NAME}"
 
 GOOGLE_FONTAPI_URL="https://fonts.googleapis.com/css"
 
@@ -97,12 +97,12 @@ function display_usageinfo() {
         [-s|--subsets SUBSETSPEC] [-f|--formats FORMATSPEC] \\
         [-n|--skip-downloads] [-x|${label_skip_localsrc}] \\
         [${label_overwrite_cssfile}] [${label_overwrite_fonts}] \\
-        [-h||--help] \\
-        FONTSPEC|CSSFILE
+        [-h|--help] \\
+        FONTSPEC
 
-  With default settings, a CSS3 @font-face atrule is printed to
-  std_out and the font files are downloads to a temporary
-  directory. Errors and warnings are printed to std_err, so it should
+  With default settings, a CSS Level 3 @font-face atrule is printed to
+  stdout and the font files are downloads to a temporary
+  directory. Errors and warnings are printed to stderr, so it should
   be save to redirect the output.
 
   OPTIONAL ARGUMENTS
