@@ -3,9 +3,9 @@
 ## Rationale
 
 Inspired by
-[google-font-download](https://github.com/neverpanic/google-font-download.git)
+[google-font-download](https://github.com/neverpanic/google-font-download.git) (also in bash 4)
 and
-[google-webfonts-helper](https://google-webfonts-helper.herokuapp.com/fonts)
+[google-webfonts-helper](https://google-webfonts-helper.herokuapp.com/fonts) (node-js)
 I developed this script to make it easy to automate (via cron and
 such) the downloading of remote web fonts and the creation of high
 quality css<sup><a href="#bulletproof">1</a></sup> for serving from my
@@ -45,8 +45,18 @@ bash <(wget -q -O - "http://lacocina.nl/best-served-local") "Roboto:100,900"
 
 Or, when you prefer `curl`:
 ```bash
-bash <(curl -sL "http://lacocina.nl/best-served-local") "Roboto:100,900"
+bash <(curl -sL "http://lacocina.nl/best-served-local") -f all Slabo\ 27px
 ```
+
+
+## Features
+
+* It uses the version of the font in the local file name and css `url()` references
+* It never overwrites existing css or font files (unless the `--overwrite-` arguments are used)
+* When an existing css file is present, the script will print the result to `stdout`
+* It stores the downloaded web fonts in a temporary directory, which path is displayed when the script finishes (unless the `--download-directory` argument together with a writable path is specified)
+* Warnings and messages are redirected to `stderr` so it should be save to redirect the output using a pipe or redirection, eg. `./best-served-local ... > myfile.css`.
+
 
 ## Fully automated usage example
 
