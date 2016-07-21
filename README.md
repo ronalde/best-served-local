@@ -6,7 +6,7 @@ Inspired by
 [google-font-download](https://github.com/neverpanic/google-font-download.git)
 and
 [google-webfonts-helper](https://google-webfonts-helper.herokuapp.com/fonts)
-I developed this scripts which makes it easy to automate (via cron and
+I developed this script to make it easy to automate (via cron and
 such) the downloading of remote web fonts for serving from my own
 webserver.
 
