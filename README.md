@@ -34,6 +34,8 @@ https://css-tricks.com/snippets/css/using-font-face/.
 Without options, the script will download the font files to a
 temporary directory.
 
+## Getting and running the script
+
 The script can be cloned or forked from its
 [github repository](https://github.com/ronalde/best-served-local),
 [downloaded](http://lacocina.nl/best-served-local) or started straight
