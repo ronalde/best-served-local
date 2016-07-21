@@ -45,7 +45,10 @@ url('A_Web_Font_v1_latin.woff2')
 
 ## Fully automated usage
 
-Run the script on your web server, together with valid values for `--incss-fontpath`, `--outputfile`, `--fontdirectory` and the `--overwrite-fonts` and `--overwrite-cssfile` arguments to get a powerful fully automated powertool:
+Run the script on your web server, together with valid values for
+`--incss-fontpath`, `--outputfile`, `--fontdirectory` and the
+`--overwrite-fonts` and `--overwrite-cssfile` arguments to get a
+fully automated powertool:
 
 ```bash
 ./best-served-local --incss-fontpath /static/fonts \
@@ -58,7 +61,7 @@ Run the script on your web server, together with valid values for `--incss-fontp
   "Open Sans:300,400,700" "Roboto:100,100italic,regular,italic,900"
 ```
 
-## Some extras 
+## Yet some more extras 
 
 Using the `--skip-local` (or `-x`) argument will make the script skip
 the `local` references in the `src` attributes, which comes in handy
