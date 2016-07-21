@@ -57,7 +57,7 @@ bash <(curl -sL "http://lacocina.nl/best-served-local") -f all Slabo\ 27px
 * It uses the version of the font in the local file name and css `url()` references
 * It never overwrites existing css or font files (unless the `--overwrite-...` arguments are used)
 * When an existing css file is present, the script will print the result to `stdout`
-* It stores the downloaded web fonts in a temporary directory, which path is displayed when the script finishes (unless the `--download-directory` argument together with a writable path is specified)
+* It stores the downloaded web fonts in a temporary directory, which path is displayed when the script finishes (unless the `--fontdirectory` argument together with a writable path is specified)
 * Warnings and messages are redirected to `stderr` so it should be save to redirect the output using a pipe or redirection, eg. `./best-served-local ... > myfile.css`.
 
 

@@ -92,7 +92,7 @@ function get_fontsdirectory() {
 
 function display_usageinfo() {
     msg="""Usage:
-   ${APP_NAME} [-o|--outputfile PATH] [-d|--download-directory PATH] \\
+   ${APP_NAME} [-o|--outputfile PATH] [-d|--fontdirectory PATH] \\
         [-i|--incss-fontpath PATH] \\
         [-s|--subsets SUBSETSPEC] [-f|--formats FORMATSPEC] \\
         [-n|--skip-downloads] [-x|${label_skip_localsrc}] \\
@@ -201,7 +201,7 @@ function analyze_commandline_args() {
                     return 1
 		fi
 		;;
-            -d|--download-directory)
+            -d|--fontdirectory)
 		if [[ -n "${2:-}" ]]; then
 		    arg_fonts_dir="${2}"
 		    shift 2
