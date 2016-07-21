@@ -21,19 +21,43 @@ tested on OSX yet).
 
 The command:
 ```bash
-./best-served-local "Open Sans:400;bolditalic;light" "Some other webfont"
+./best-served-local "Open Sans:400;bolditalic;light" "Robot:light,black"
 ```
 
-will display `@font-face` css at-rules for the "Open Sans" web font
-in the variations *regular* (`font-weight: 400; font-style:
-regular`), *bold-italic* (`font-weight: 700; font-style: italic`) and
-*light* (`font-weight: 300; font-style: regular`), in the
-`latin`-subset, in the file formats of the *practical* superset
-(`woff` and `woff2`) as defined by
-https://css-tricks.com/snippets/css/using-font-face/. 
+Will display the following `@font-face` css at-rules and download each
+font file to a temporary directory.:
 
-Without options, the script will download the font files to a
-temporary directory.
+```css
+/* >>> script generated css starts here >>> */
+@font-face {
+   font-family: 'Open Sans';
+   src: 
+        local('Open Sans'), local('OpenSans'), 
+		url('Open_Sans_v13_latin_400.woff2') format('woff2'),
+		url('Open_Sans_v13_latin_400.woff') format('woff');
+		font-style:  normal;
+		font-weight: 400;
+}
+@font-face {
+ 	font-family: 'Roboto';
+	src: 
+	     local('Roboto Light'), local('Roboto-Light'), 
+	     url('Roboto_Light_v15_latin_300.woff2') format('woff2'),
+	     url('Roboto_Light_v15_latin_300.woff') format('woff');
+	     font-style:  normal;
+	     font-weight: 300;
+}
+@font-face {
+	font-family: 'Roboto';
+	src: 
+	     local('Roboto Black'), local('Roboto-Black'), 
+	     url('Roboto_Black_v15_latin_900.woff2') format('woff2'),
+	     url('Roboto_Black_v15_latin_900.woff') format('woff');
+	font-style:  normal;
+	font-weight: 900;
+}
+/* <<< script generated css ends here <<< */
+```
 
 ## Getting and running the script
 
@@ -89,12 +113,12 @@ as the path to the font file, eg using `-i ../static/fonts` will
 result in the following css:
 
 ```css
-url('../static/fonts/A_Web_Font_v1_latin.woff2')
+src: url('../static/fonts/A_Web_Font_v1_latin.woff2')
 ```
 
 While omitting that option would result in:
 ```css
-url('A_Web_Font_v1_latin.woff2')
+src: url('A_Web_Font_v1_latin.woff2')
 ```
 
 Using the `--skip-local` (or `-x`) argument will make the script skip
