@@ -38,7 +38,7 @@ temporary directory.
 
 The script can be cloned or forked from its
 [github repository](https://github.com/ronalde/best-served-local),
-[downloaded](http://lacocina.nl/best-served-local) or started straight
+[downloaded](http://lacocina.nl/best-served-local), or started straight
 from the web (although some would advise against that):
 
 ```bash
