@@ -126,7 +126,7 @@ the `local` references in the `src` attributes, which comes in handy
 if you want maximum control over the appearance of your website.
 
 Using `--skip-downloads` (or `-n`) will not download the font files,
-but just output the proper CSS. It will however contact Goole-server
+but just output the proper CSS. It will however contact Goggle-server
 to verify the proper css attributes and such.
 
 ## FONTSPEC
