@@ -1,7 +1,7 @@
-# `best-served-local`: 
-## Yet Another Google Font Downloader (written in bash)
+# best-served-local (Yet Another Google Font Downloader written in bash)
 
 ## Rationale
+
 Inspired by
 [google-font-download](https://github.com/neverpanic/google-font-download.git)
 and
@@ -101,8 +101,3 @@ You want something funky? Just tell the script to do so:
 ```bash
 ./best-served-local -f otf,svg "Open Sans" 
 ```
-
-
-
-
-
