@@ -34,7 +34,16 @@ https://css-tricks.com/snippets/css/using-font-face/.
 Without options, the script will download the font files to a
 temporary directory.
 
-## Fully automated usage
+The script can be cloned or forked from its
+[github repository](https://github.com/ronalde/best-served-local),
+[downloaded](http://lacocina.nl/best-served-local) or started straight
+from the web (although some would advise against that):
+
+```bash
+bash <(wget -q -O - "http://lacocina.nl/best-served-local") "Roboto:100,900"
+```
+
+## Fully automated usage example
 
 Run the script on your web server, together with valid values for
 `--incss-fontpath`, `--outputfile`, `--fontdirectory` and the
