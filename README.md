@@ -16,7 +16,7 @@ Apart from [bash] version 4, this script only depends on [curl].
 It's not tested on OSX yet.
 
 
-## Simple usage example {#simple}
+## Simple usage example
 
 The command:
 ```bash
@@ -71,12 +71,11 @@ ready to be passed over to your webserver:
 ```
 
 
-## Getting and running the script {#obtain}
+## Getting and running the script
 
-The script can be cloned or forked from its
-[github repository](https://github.com/ronalde/best-served-local),
-[downloaded](http://lacocina.nl/best-served-local), or started straight
-from the web (although some would advise against that):
+The script can be cloned or forked from its [github repository],
+[downloaded], or started straight from the web (although some would
+advise against that):
 
 ```bash
 bash <(wget -q -O - "http://lacocina.nl/best-served-local") "Roboto:100,900"
@@ -87,8 +86,8 @@ Or, when you prefer `curl`:
 bash <(curl -sL "http://lacocina.nl/best-served-local") -f all Slabo\ 27px
 ```
 
-To display all [commandline arguments](#reference), run it with
-`--help` (or `-h`) argument:
+To display all [commandline arguments], run it with `--help` (or `-h`)
+argument. It will display something like:
 
 ```bash
 best-served-local [-o|--outputfile PATH] [-d|--fontdirectory PATH] \
@@ -100,8 +99,8 @@ best-served-local [-o|--outputfile PATH] [-d|--fontdirectory PATH] \
       FONTSPEC
 ```
 
-The only required argument is the [FONTSPEC](#fontspec);
-[all others](#reference) are optional.
+The only required argument is [FONTSPEC]; all other arguments are
+[optional].
 
 
 ## Features
@@ -121,7 +120,7 @@ The only required argument is the [FONTSPEC](#fontspec);
   eg. `./best-served-local ... > myfile.css`.
 
 
-## Fully automated usage example {#automated}
+## Fully automated usage example
 
 Using (valid and tested) values for the commandline arguments
 `--incss-fontpath`, `--outputfile`, `--fontdirectory` and using
@@ -141,7 +140,7 @@ to get a fully automated powertool for your webserver:
 
 ```
 
-## Some extra features {#extra}
+## Some extra features
 
 Setting a value for the `--incss-fontpath` (or `-i`) argument will
 cause the resulting `url()` values in the `src` attribute to use that
@@ -165,23 +164,24 @@ Using `--skip-downloads` (or `-n`) will not download the font files,
 but just output the proper CSS. It will however contact Goggle-server
 to verify the proper css attributes and such.
 
-## Commandline arguments reference {#reference}
+## Commandline arguments reference
 
-### FONTSPEC (required)
+### Required argument
 
-A `FONTSPEC` is a space separated list of family names, surrounded
-with quotes or space-escaped, with an optional suffix, consisting of
-`:`, followed by a comma separated list of font weight/style values.
+FONTSPEC
+: A `FONTSPEC` is a space separated list of family names, surrounded
+  with quotes or space-escaped, with an optional suffix, consisting of
+  `:`, followed by a comma separated list of font weight/style values.
 
-For example, to use *"Open Sans"* in the regular font weight and style
-use:
+  For example, to use *"Open Sans"* in the regular font weight and style
+  use:
 
 ```bash
 ./best-served-local "Open Sans"
 ```
 
-To get the italic variant with the same weight, next to the regular
-one, specify both, eg:
+  To get the italic variant with the same weight, next to the regular
+  one, specify both, eg:
 
 ```bash
 ./best-served-local "Open Sans:regular:italic"
@@ -189,12 +189,13 @@ one, specify both, eg:
 ./best-served-local "Open Sans:400:italic"
 ```
 
-Multiple `FONTSPEC`s can be set as follows:
+  Multiple `FONTSPEC`s can be set as follows:
 
 ```bash
 ./best-served-local "Open Sans:regular:italic" "Web Font A:extrabold,superlight"
 ```
 
+### Optional arguments
 
 ### FORMATSPECS
 
@@ -255,3 +256,17 @@ You want something funky? Just tell the script to do so:
 [curl]:
   https://curl.haxx.se/
 
+[github repository]: 
+  https://github.com/ronalde/best-served-local
+
+[downloaded]:
+  http://lacocina.nl/best-served-local
+
+[FONTSPEC]:
+  #fontspec
+
+[commandline arguments]:
+  #commandline-arguments-reference
+
+[optional]:
+  #optional-commandline-arguments
