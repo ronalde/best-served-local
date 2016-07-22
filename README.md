@@ -192,26 +192,70 @@ to verify the proper css attributes and such.
 
 ### Optional arguments
 
-**`FORMATSPECS`**
+**`-o PATH`** or **`--outputfile PATH`**
+: The `PATH` of the file to save the generated css in. `PATH` can be
+  relative to the working directory (eg. `fonts.css` or
+  `../static/css/`) or absolute
+  (eg. `/srv/www/example.org/static/css/fonts.css`).
+
+**`-d PATH`** or **`--fontdirectory PATH`**
+: The `PATH` of the directory to save the downloaded web fonts
+  in. `PATH` can be relative to the working directory
+  (eg. `../static/fonts`) or absolute
+  (eg. `/srv/www/example.org/static/css/fonts`).
+
+**`-i PATH`** or **`--incss-fontpath PATH`**
+: The `PATH` of the directory to which font files will be referenced
+  in the generated css using its `url` value. For example setting
+  `PATH` to `../downloadedfonts` will lead to the following css `src:
+  url('../downloadedfonts/A_Web_Font_v1_latin.woff2')`.
+  
+**`-n`** or **`--no-downloads`**
+: Setting this argument causes the script to **not download** the web
+  font files, which it by default does.
+
+**`-x`** or **`--skip-local`**
+: Prevents the inclusion of the 'local()' references in the `src`
+  attribute.  The reason some people might want that is to prevent
+  erronous versions of locally installed fonts to be used by the
+  browser, instead of the ones served by your webserver.
+
+**`-f FORMATSPECS`** or **`--formats FORMATSPECS`**
 : `FORMATSPECS` define the font file formats to use. It should be
   specified as one of the *presets*, or a comma-seperated list of
   specific formats. The script recognize the following presets, taken
   from https://css-tricks.com/snippets/css/using-font-face/:
 
-  superprogressive
-  : `woff2`
+`superprogressive`
+: `woff2`
 
-  practical
-  : *superprogressive* + `woff` (= default)
+`practical`
+: `superprogressive` + `woff` (= default)
 
-  slightlydeeper
-  : *practical* + `ttf`
+`slightlydeeper`
+: `practical` + `ttf`
 
-  all
-  : *slightlydeeper* + `eot` + `otf` + `svg`
+`all`
+: `slightlydeeper` + `eot` + `otf` + `svg`
 
-  For example, to use the default *practical* set, consisting of the
+For example, to use the default *practical* set, consisting of the
   `woff` and `woff2` formats, for the "Open Sans" font, use:
+
+**`-s SUBSETSPEC`** or **`--subsets SUBSETSPEC`**
+: Comma-separated list of `SUBSETS`. A `SUBSET` is one of the
+  following predefined names: `cyrillic`, `cyrillic-ext`, `greek`,
+  `greek-ext`, `latin` (default), `latin-ext`, `vietnamese` and `all`.
+
+**`-overwrite-cssfile`**
+: When used together with `--outputfile PATH`, using this argument
+makes the script overwrite the file specified with `PATH` in case it
+exists, which normally does not happen.
+
+**`-overwrite-fonts`**
+: When used together with `--fontdirectory PATH`, using this argument
+  makes the script overwrite the font files in the directory specified
+  with `PATH` in case they exists, which normally does not happen.
+
 
 ```bash
 ./best-served-local "Open Sans" 
@@ -226,6 +270,7 @@ You want something funky? Just tell the script to do so:
 ```bash
 ./best-served-local -f eot,svg "Open Sans" 
 ```
+
 
 ---------------
 
