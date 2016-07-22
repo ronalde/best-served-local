@@ -23,7 +23,7 @@ tested on OSX yet).
 
 The command:
 ```bash
-./best-served-local "Open Sans:400;bolditalic;light" "Robot:light,black"
+./best-served-local "Open Sans" "Robot:light,black"
 ```
 
 Will display the following `@font-face` css at-rules and download each
