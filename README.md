@@ -173,25 +173,19 @@ FONTSPEC
 : A `FONTSPEC` is a space separated list of family names, surrounded
   with quotes or space-escaped, with an optional suffix, consisting of
   `:`, followed by a comma separated list of font weight/style values.
-
   For example, to use *"Open Sans"* in the regular font weight and style
   use:
-
 ```bash
 ./best-served-local "Open Sans"
 ```
-
   To get the italic variant with the same weight, next to the regular
   one, specify both, eg:
-
 ```bash
 ./best-served-local "Open Sans:regular:italic"
 ## or
 ./best-served-local "Open Sans:400:italic"
 ```
-
   Multiple `FONTSPEC`s can be set as follows:
-
 ```bash
 ./best-served-local "Open Sans:regular:italic" "Web Font A:extrabold,superlight"
 ```
