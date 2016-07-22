@@ -192,29 +192,26 @@ to verify the proper css attributes and such.
 
 ### Optional arguments
 
-### FORMATSPECS
+**`FORMATSPECS`**
+: `FORMATSPECS` define the font file formats to use. It should be
+  specified as one of the *presets*, or a comma-seperated list of
+  specific formats. The script recognize the following presets, taken
+  from https://css-tricks.com/snippets/css/using-font-face/:
 
-`FORMATSPECS` define the font file formats to use. It should be
-specified as one of the *presets*, or a comma-seperated list of
-specific formats.
+  superprogressive
+  : `woff2`
 
-The script recognize the following presets, taken from
-https://css-tricks.com/snippets/css/using-font-face/:
+  practical
+  : *superprogressive* + `woff` (= default)
 
-superprogressive
-: `woff2`
+  slightlydeeper
+  : *practical* + `ttf`
 
-practical
-: *superprogressive* + `woff` (= default)
+  all
+  : *slightlydeeper* + `eot` + `otf` + `svg`
 
-slightlydeeper
-: *practical* + `ttf`
-
-all
-: *slightlydeeper* + `eot` + `otf` + `svg`
-
-For example, to use the default *practical* set, consisting of the
-`woff` and `woff2` formats, for the "Open Sans" font, use:
+  For example, to use the default *practical* set, consisting of the
+  `woff` and `woff2` formats, for the "Open Sans" font, use:
 
 ```bash
 ./best-served-local "Open Sans" 
