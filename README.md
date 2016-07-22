@@ -169,7 +169,7 @@ to verify the proper css attributes and such.
 
 ### Required argument
 
-FONTSPEC
+**`FONTSPEC`**
 : A `FONTSPEC` is a space separated list of family names, surrounded
   with quotes or space-escaped, with an optional suffix, consisting of
   `:`, followed by a comma separated list of font weight/style values.
