@@ -4,16 +4,17 @@
 
 ## Rationale
 
-Inspired by [google-font-download] by Clemens Lang (also written in
-bash v4) and [google-webfonts-helper] (client side javascript) I
-developed this script to make it easy to [automate](#automated) (via
-cron and such) the downloading of remote web fonts and the creation of
-high quality [@font-face css3 rules] using the
-[bulletproof @font-face method] by Paul Irish for serving from my own
-webserver.
+Inspired by the idea of [google-font-download] by Clemens Lang (also
+written in bash v4) and the functionality of [google-webfonts-helper]
+(client side browser app in javascript), I developed this script to
+make it easy to [automate](#automated) (via cron and such) the
+downloading of remote web fonts and the creation of high quality
+[@font-face css3 rules] using the [bulletproof @font-face method] by
+Paul Irish for serving from my own webserver.
 
 Apart from [bash] version 4, this script only depends on [curl]. 
-It's not tested on OSX yet.
+
+> It's not tested on OSX yet.
 
 
 ## Simple usage example
@@ -263,10 +264,10 @@ You want something funky? Just tell the script to do so:
   http://lacocina.nl/best-served-local
 
 [FONTSPEC]:
-  #fontspec
+  #required-argument
 
 [commandline arguments]:
   #commandline-arguments-reference
 
 [optional]:
-  #optional-commandline-arguments
+  #optional-arguments
