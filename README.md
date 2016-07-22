@@ -222,7 +222,7 @@ to verify the proper css attributes and such.
 
 **`-f FORMATSPECS`** or **`--formats FORMATSPECS`**
 : `FORMATSPECS` define the font file formats to use. It should be
-  specified as one of the *presets*, or a comma-seperated list of
+  specified as one of the *presets*, or a comma-separated list of
   specific formats. The script recognize the following presets, taken
   from https://css-tricks.com/snippets/css/using-font-face/:
 

@@ -29,7 +29,7 @@
 ## constants and defaults
 ## font subsets to be downloaded, defaults to 'latin'
 DEF_ARG_SUBSETS="latin"
-## comma seperated list of font formats to be downloaded
+## comma separated list of font formats to be downloaded
 ## defaults to 'practical' (eg 'woff & woff2')
 DEF_ARG_FONTFORMATS="practical"
 
@@ -276,7 +276,7 @@ function analyze_commandline_args() {
 		exit
 		;;
             --)
-		## comma seperated list of fonts (eg 'font:weight(slant) font2:weight(slant)')
+		## comma separated list of fonts (eg 'font:weight(slant) font2:weight(slant)')
 		##echo &>2 "-- reached: @ = '$@'"
 		shift
 		#opt_rest="$@"
@@ -293,7 +293,7 @@ function analyze_commandline_args() {
     done
     ## shift the options index to get the remainder of the command
     ## line arguments containing the font descriptions
-    ## and return them as 0-seperated strings.
+    ## and return them as 0-separated strings.
     shift $(($OPTIND - 1))
     arg_fontspecs="$(printf "%s\n" "$@")"
 }
@@ -426,7 +426,7 @@ function validate_arg_fontformats() {
     ## against valid_fontformats. returns error with description if no
     ## choice could be validated.
 
-    ## convert comma seperated arguments into array
+    ## convert comma separated arguments into array
     a_fontformats=( ${1//,/ } )
     case "${a_fontformats[@]}x" in 
 	allx)
@@ -465,7 +465,7 @@ function validate_arg_fontformats() {
 	printf "no single valid font format chosen"
 	return 1
     else
-	## return the array as a space seperated list
+	## return the array as a space separated list
 	printf "%s " "${a_checked_fontformats[@]}"
     fi
 }
@@ -476,7 +476,7 @@ function validate_arg_subsets() {
     ## against valid_subsets. returns error with description if no
     ## choice could be validated.
 
-    ## convert comma seperated arguments into array
+    ## convert comma separated arguments into array
     a_subsets=( ${1//,/ } )
     if [[ "${a_subsets[@]}" =~ all ]]; then
 	## when 'all' is chosen skip any other
@@ -532,7 +532,7 @@ function process_atrule() {
     re_src_url_format="${re_src_url}[[:space]]*format\(([^[:space]]*)\)"
     re_src_url_version="/(v[0-9]*)/"
 
-    ## process the (newline seperated) font-face atrule
+    ## process the (newline separated) font-face atrule
     while read -r line; do
 	if [[ "${line}" =~ ${re_font_family} ]]; then
 	    ## font-family attribute
@@ -540,7 +540,7 @@ function process_atrule() {
 	elif [[ "${line}" =~ ${re_font_weight} ]]; then
 	    ## font-weight attribute
 	    cssattr_font_weight="${BASH_REMATCH[1]}"
-	    ## determine if it is multi-valued (comma seperated)
+	    ## determine if it is multi-valued (comma separated)
 	    weightprops_escaped="${cssattr_font_weight//,/ /}"
 	    weightprops=( ${weightprops_escaped} )
 	    ## store the number of weights
@@ -730,9 +730,9 @@ arg_fonts_dir="${arg_fonts_dir:-}"
 arg_skipdownload="${arg_skipdownload:-}"
 ## commandline argument -x/--skip-local-src-attr
 arg_skiplocal="${arg_skiplocal:-}"
-## comma seperated list of font subsets to be downloaded, defaults to latin
+## comma separated list of font subsets to be downloaded, defaults to latin
 arg_subsets="${arg_subsets:-${DEF_ARG_SUBSETS}}"
-## comma seperated list of font formats to be downloaded
+## comma separated list of font formats to be downloaded
 ## defaults to 'practical' (eg 'woff & woff2')
 arg_fontformats="${arg_fontformats:-${DEF_ARG_FONTFORMATS}}"
 arg_forceoverwrite_cssfile="${arg_forceoverwrite_cssfile:-}"
