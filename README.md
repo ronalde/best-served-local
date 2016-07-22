@@ -23,11 +23,10 @@ tested on OSX yet).
 
 The command:
 ```bash
-./best-served-local "Open Sans" "Robot:light,black"
+./best-served-local "Open Sans" "Roboto:light,black"
 ```
 
-Will display the following `@font-face` css at-rules and download each
-font file to a temporary directory.:
+Will display the following `@font-face` css at-rules:
 
 ```css
 /* >>> script generated css starts here >>> */
@@ -60,6 +59,20 @@ font file to a temporary directory.:
 }
 /* <<< script generated css ends here <<< */
 ```
+
+And in the temporary directory the following files are downloaded,
+ready to be passed over to your webserver:
+
+```
+/tmp/best-served-local.XXXX
+├── Open_Sans_v13_latin_400.woff
+├── Open_Sans_v13_latin_400.woff2
+├── Roboto_Black_v15_latin_900.woff
+├── Roboto_Black_v15_latin_900.woff2
+├── Roboto_Light_v15_latin_300.woff
+└── Roboto_Light_v15_latin_300.woff2
+```
+
 
 ## Getting and running the script
 
