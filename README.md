@@ -248,8 +248,8 @@ You want something funky? Just tell the script to do so:
   https://www.w3.org/TR/css-fonts-3/#font-face-rule
 
 [bulletproof @font-face method]: 
-  http://www.paulirish.com/2009/bulletproof-font-face-implementation-syntax/ \
-  ""bulletproof @font-face method""
+  http://www.paulirish.com/2009/bulletproof-font-face-implementation-syntax/ 
+  "*bulletproof @font-face method*"
   
 [bash]: 
   https://www.gnu.org/software/bash/
