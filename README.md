@@ -1,25 +1,22 @@
 # best-served-local
 
-**aka "Yet Another Google Web Font Downloader written in bash"**
+> aka "Yet Another Google Web Font Downloader written in bash"
 
 ## Rationale
 
-Inspired by
-[google-font-download](https://github.com/neverpanic/google-font-download.git)
-(also in bash 4) and
-[google-webfonts-helper](https://google-webfonts-helper.herokuapp.com/fonts)
-(node-js) I developed this script to make it easy to automate (via
+Inspired by [google-font-download] by Clemens Lang (also written in
+bash v4) and [google-webfonts-helper] (client side javascript) I
+developed this script to make it easy to [automate](#automated) (via
 cron and such) the downloading of remote web fonts and the creation of
-high quality
-[@font-face css3 rules](https://www.w3.org/TR/css-fonts-3/#font-face-rule)<sup><a
-href="#bulletproof">1</a></sup> for serving from my own webserver.
+high quality [@font-face css3 rules] using the
+[bulletproof @font-face method] by Paul Irish for serving from my own
+webserver.
 
-Apart from [bash](https://www.gnu.org/software/bash/) version 4, this
-script only depends on [curl](https://curl.haxx.se/).  (It's not
-tested on OSX yet).
+Apart from [bash] version 4, this script only depends on [curl]. 
+It's not tested on OSX yet.
 
 
-## Simple usage example
+## Simple usage example {#simple}
 
 The command:
 ```bash
@@ -60,7 +57,7 @@ Will display the following `@font-face` css at-rules:
 /* <<< script generated css ends here <<< */
 ```
 
-And in the temporary directory the following files are downloaded,
+And in the temporary directory, the following files are downloaded,
 ready to be passed over to your webserver:
 
 ```
@@ -74,7 +71,7 @@ ready to be passed over to your webserver:
 ```
 
 
-## Getting and running the script
+## Getting and running the script {#obtain}
 
 The script can be cloned or forked from its
 [github repository](https://github.com/ronalde/best-served-local),
@@ -90,7 +87,9 @@ Or, when you prefer `curl`:
 bash <(curl -sL "http://lacocina.nl/best-served-local") -f all Slabo\ 27px
 ```
 
-To display all command line arguments, run it with `--help` (or `-h`)  argument:
+To display all [commandline arguments](#reference), run it with
+`--help` (or `-h`) argument:
+
 ```bash
 best-served-local [-o|--outputfile PATH] [-d|--fontdirectory PATH] \
       [-i|--incss-fontpath PATH] \
@@ -101,22 +100,33 @@ best-served-local [-o|--outputfile PATH] [-d|--fontdirectory PATH] \
       FONTSPEC
 ```
 
+The only required argument is the [FONTSPEC](#fontspec);
+[all others](#reference) are optional.
+
 
 ## Features
 
-* It uses the version of the font in the local file name and css `url()` references
-* It never overwrites existing css or font files (unless the `--overwrite-...` arguments are used)
-* When an existing css file is present, the script will print the result to `stdout`
-* It stores the downloaded web fonts in a temporary directory, which path is displayed when the script finishes (unless the `--fontdirectory` argument together with a writable path is specified)
-* Warnings and messages are redirected to `stderr` so it should be save to redirect the output using a pipe or redirection, eg. `./best-served-local ... > myfile.css`.
+* It uses the version of the font in the local file name and css
+  `url()` references.
+* It never overwrites existing css or font files (unless the
+  `--overwrite-...` arguments are used);
+  * When an existing css file is present, the script will notify the
+    user and print the result to `stdout`.
+* It stores downloaded web fonts in a temporary directory, which
+  path is displayed when the script finishes (unless the
+  `--fontdirectory` argument together with a writable path is
+  specified).
+* Warnings and messages are redirected to `stderr` so it should be
+  save to redirect the output using a pipe or redirection,
+  eg. `./best-served-local ... > myfile.css`.
 
 
-## Fully automated usage example
+## Fully automated usage example {#automated}
 
-Run the script on your web server, together with valid values for
-`--incss-fontpath`, `--outputfile`, `--fontdirectory` and the
-`--overwrite-fonts` and `--overwrite-cssfile` arguments to get a
-fully automated powertool:
+Using (valid and tested) values for the commandline arguments
+`--incss-fontpath`, `--outputfile`, `--fontdirectory` and using
+`--overwrite-fonts` and `--overwrite-cssfile`, the script can be used
+to get a fully automated powertool for your webserver:
 
 ```bash
 
@@ -131,7 +141,7 @@ fully automated powertool:
 
 ```
 
-## Some extra features
+## Some extra features {#extra}
 
 Setting a value for the `--incss-fontpath` (or `-i`) argument will
 cause the resulting `url()` values in the `src` attribute to use that
@@ -155,58 +165,66 @@ Using `--skip-downloads` (or `-n`) will not download the font files,
 but just output the proper CSS. It will however contact Goggle-server
 to verify the proper css attributes and such.
 
-## FONTSPEC
+## Commandline arguments reference {#reference}
 
-Should be space separated list of family names, with
-optional suffix consisting of `:` with a comma separated list of
-font weight/style values. 
+### FONTSPEC (required)
 
-For example to use *"Open Sans"* in the regular font weight and style use:
+A `FONTSPEC` is a space separated list of family names, surrounded
+with quotes or space-escaped, with an optional suffix, consisting of
+`:`, followed by a comma separated list of font weight/style values.
+
+For example, to use *"Open Sans"* in the regular font weight and style
+use:
 
 ```bash
 ./best-served-local "Open Sans"
 ```
-	  
-To get the italic variant next to the regular one (with the same
-weight), specify both, eg.
+
+To get the italic variant with the same weight, next to the regular
+one, specify both, eg:
 
 ```bash
 ./best-served-local "Open Sans:regular:italic"
+## or
+./best-served-local "Open Sans:400:italic"
 ```
 
-Multiple FONTSPECs should be space seperated (and surrounden with
-quotes or space-escaped):
+Multiple `FONTSPEC`s can be set as follows:
 
 ```bash
-./best-served-local \
-  "Open Sans:regular:italic" \
-  "Web Font A:extrabold,superlight" \
-  "Web Font B:100,200""
+./best-served-local "Open Sans:regular:italic" "Web Font A:extrabold,superlight"
 ```
 
 
-## FORMATSPECS
+### FORMATSPECS
 
-`FORMATSPECS` define the font formats for use in the CSS and
-downloading. It should be specified as one of the presets, or a
-comma-seperated list of specific formats.
+`FORMATSPECS` define the font file formats to use. It should be
+specified as one of the *presets*, or a comma-seperated list of
+specific formats.
 
 The script recognize the following presets, taken from
 https://css-tricks.com/snippets/css/using-font-face/:
-* **superprogressive**: `woff2`
-* **practical**:        *superprogressive* + `woff` (= default)
-* **slightlydeeper**:   *practical* + `ttf`
-* **all**:              all of the above + `eot`, `otf` and `svg`
 
+superprogressive
+: `woff2`
 
-For example, to use the (default) *practical* set consisting of the
-`woff` and `woff2` formats for the "Open Sans" font (in regular
-variant), use:
+practical
+: *superprogressive* + `woff` (= default)
+
+slightlydeeper
+: *practical* + `ttf`
+
+all
+: *slightlydeeper* + `eot` + `otf` + `svg`
+
+For example, to use the default *practical* set, consisting of the
+`woff` and `woff2` formats, for the "Open Sans" font, use:
+
 ```bash
 ./best-served-local "Open Sans" 
 ```
 
-To get full support (and heavy per page downloads), use:
+To get full browser support (and thus heavy per page downloads), use:
 ```bash
 ./best-served-local -f all "Open Sans" 
 ```
@@ -216,8 +234,24 @@ You want something funky? Just tell the script to do so:
 ./best-served-local -f eot,svg "Open Sans" 
 ```
 
-----
+---------------
 
-<a name="bulletproof">1</a>: This script uses the 
-    [Bulletproof @font-face](http://www.paulirish.com/2009/bulletproof-font-face-implementation-syntax/)
-    by Paul Irish.
+[google-font-download]: 
+  https://github.com/neverpanic/google-font-download.git/ "`google-font-download`"
+
+[google-webfonts-helper]: 
+  https://github.com/majodev/google-webfonts-helper/ "`google-webfonts-helper`"
+
+[@font-face css3 rules]: 
+  https://www.w3.org/TR/css-fonts-3/#font-face-rule
+
+[bulletproof @font-face method]: 
+  http://www.paulirish.com/2009/bulletproof-font-face-implementation-syntax/ \
+  ""bulletproof @font-face method""
+  
+[bash]: 
+  https://www.gnu.org/software/bash/
+  
+[curl]:
+  https://curl.haxx.se/
+
