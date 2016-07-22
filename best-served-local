@@ -828,14 +828,13 @@ res=0
 create_atrules
 if [[ $? -eq 0 ]]; then
     if [[ ${#a_invalid_specs[@]} -gt 0 ]] || [[ ${#a_fonts_alreadydownloaded[@]} -gt 0 ]]; then
-	a_msg_err+=("Notice::\n")
 	if [[ ${#a_invalid_specs[@]} -gt 0 ]]; then
-	    a_msg_err+=("\tCould not process the following font specifications:\n")
-	    a_msg_err+=("$(printf 1>&2 "\t %s\n" "${a_invalid_specs[@]}")")
+	    a_msg_err+=("Could not process the following font specifications:")
+	    a_msg_err+=("$(printf " %s\n" "${a_invalid_specs[@]}")")
 	fi
 	if [[ ${#a_fonts_alreadydownloaded[@]} -gt 0 ]]; then
-	    a_msg_err+=("\tThe following font files were not overwritten :\n")
-	    a_msg_err+=("$(printf 1>&2 "\t %s\n" "${a_fonts_alreadydownloaded[@]}")")
+	    a_msg_err+=("The following font files were not overwritten:")
+	    a_msg_err+=("$(printf " %s\n" "${a_fonts_alreadydownloaded[@]}")")
 	fi
     fi
     ## check if an css output file is specified, if so if it exists,
@@ -900,7 +899,7 @@ if [[ $? -eq 0 ]]; then
 	    fi
 	    printf 1>&2 "* fonts available in: \`%s'\n" "${checked_dir}"
 	    if [[ ${#a_msg_err[@]} -gt 0 ]]; then
-		printf 1>&2 "Warnings:\n"
+		printf 1>&2 "\nPlease note the following:\n"
 		printf 1>&2 "%s\n" "${a_msg_err[@]}"
 	    else
 		if [[ "${arg_output_cssfile}" != "/dev/stdout" ]]; then
