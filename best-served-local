@@ -818,8 +818,14 @@ nr_downloadfonts=0
 label_overwrite_cssfile="--overwrite-cssfile"
 label_overwrite_fonts="--overwrite-fonts"
 label_skip_localsrc="--skip-local"
-css_header=">>> script generated css starts here >>>"
-css_footer="<<< script generated css ends here <<<"
+a_css_header=("font-face at-rules generated with")
+a_css_header+=("      ${0:-APP_NAME} (version ${APP_VERSION})")
+a_css_header+=("   using arguments:")
+a_css_header+=("      $(printf "%s " "$@")")
+a_css_header+=(" ")
+a_css_header+=(">>> font-face at-rules start here >>>")
+css_header="$(printf "%s\n" "${a_css_header[@]}")"
+css_footer="<<< generated font-face at-rules end here <<<"
 
 ## main program flow
 
@@ -910,6 +916,7 @@ if [[ $? -eq 0 ]]; then
 	fi
     fi
 
+    css_header+=""
     if [[ ${#a_atrules_created[@]} -gt 0 ]]; then
 	printf "/* %s */\n" "${css_header}" > "${arg_output_cssfile}"
 	for atrule in "${a_atrules_created[@]}"; do 
