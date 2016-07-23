@@ -255,7 +255,7 @@ Or use a javascript '@import' statement:
   [Using @font-face] by Chris Coyier from css-tricks.com:
 
   * `superprogressive`: [woff2]
-  * `practical`: `superprogressive` + [woff] (= default)
+  * `practical`: `superprogressive` + [woff] \(= default)
   * `slightlydeeper`: `practical` + `ttf`
   * `all`: `slightlydeeper` + `eot` + `otf` + `svg`
 
