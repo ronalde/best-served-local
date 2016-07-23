@@ -248,17 +248,10 @@ Or use a javascript '@import' statement:
   specific formats. The script recognize the following presets, taken
   from https://css-tricks.com/snippets/css/using-font-face/:
 
-`superprogressive`
-: `woff2`
-
-`practical`
-: `superprogressive` + `woff` (= default)
-
-`slightlydeeper`
-: `practical` + `ttf`
-
-`all`
-: `slightlydeeper` + `eot` + `otf` + `svg`
+* `superprogressive`: `woff2`
+* `practical`: `superprogressive` + `woff` (= default)
+* `slightlydeeper`: `practical` + `ttf`
+* `all`: `slightlydeeper` + `eot` + `otf` + `svg`
 
 For example, to use the default *practical* set, consisting of the
   `woff` and `woff2` formats, for the "Open Sans" font, use:
