@@ -238,8 +238,8 @@ Or use a javascript '@import' statement:
 **`-n`** or **`--no-downloads`**
 : Setting this argument causes the script to **not download** the web
   font files, which it by default does do.
-  > However, this does not prevent the script to contact google's font
-  > servers for obtaining information on requested fonts.
+  > However, this does **not prevent the script to contact google's font
+  > servers** for obtaining information on each requested font.
 
 **`-x`** or **`--skip-local`**
 : Prevents the inclusion of the `local()` references in the `src`
