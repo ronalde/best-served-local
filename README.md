@@ -218,13 +218,16 @@ Or use a javascript '@import' statement:
 : The `PATH` of the file to save the generated css in. `PATH` can be
   relative to the working directory (eg. `fonts.css` or
   `../static/css/`) or absolute
-  (eg. `/srv/www/example.org/static/css/fonts.css`).
+  (eg. `/srv/www/example.org/static/css/fonts.css`). When not
+  specified, the script prints the resulting css to `stdout`.
 
 **`-d PATH`** or **`--fontdirectory PATH`**
 : The `PATH` of the directory to save the downloaded web fonts
   in. `PATH` can be relative to the working directory
   (eg. `../static/fonts`) or absolute
-  (eg. `/srv/www/example.org/static/css/fonts`).
+  (eg. `/srv/www/example.org/static/css/fonts`). When not supplied,
+  the script will save the fonts in a temporary directory, which is
+  will display when the script has finished.
 
 **`-i PATH`** or **`--incss-fontpath PATH`**
 : The `PATH` of the directory to which font files will be referenced
