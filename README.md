@@ -240,10 +240,11 @@ Or use a javascript '@import' statement:
   font files, which it by default does.
 
 **`-x`** or **`--skip-local`**
-: Prevents the inclusion of the 'local()' references in the `src`
-  attribute.  The reason some people might want that is to prevent
-  erronous versions of locally installed fonts to be used by the
-  browser, instead of the ones served by your webserver.
+: Prevents the inclusion of the `local()` references in the `src`
+  attribute. Although the use of such references to fonts installed on
+  the browsers' system saves downloading them at page load, they might
+  differ from the versions served by your webserver. Skipping such
+  references makes sure the browser gets what you want them to get.
 
 **`-f FORMATSPECS`** or **`--formats FORMATSPECS`**
 : `FORMATSPECS` define the font file formats to use. It should be
