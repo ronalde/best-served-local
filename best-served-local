@@ -97,7 +97,8 @@ function display_usageinfo() {
         [-i|--incss-fontpath PATH] \\
         [-s|--subsets SUBSETSPEC] [-f|--formats FORMATSPEC] \\
         [-n|--skip-downloads] [-x|${label_skip_localsrc}] \\
-        [${label_overwrite_cssfile}] [${label_overwrite_fonts}] \\
+        [${label_overwrite_css}] [${label_overwrite_fonts}] \\
+        [${label_overwrite_all}] \\
         [-h|--help] \\
         FONTSPEC
 
@@ -114,8 +115,9 @@ function display_usageinfo() {
   -x|${label_skip_localsrc}          Prevents the inclusion of the 'local()' values.
   -f|--formats FORMATSPECS Comma-separated list of FORMATSPECS.
   -s|--subsets SUBSETSPEC  Comma-separated list of SUBSETS.
-  ${label_overwrite_cssfile}      Overwrite existing css file.
+  ${label_overwrite_css}      Overwrite existing css file.
   ${label_overwrite_fonts}    Overwrite existing font files.
+  ${label_overwrite_all}    Overwrite existing font and css files.
   -h|--help                Show this help message and exit.
 
   FONTSPEC should be space separated list of family names, with
@@ -251,23 +253,31 @@ function analyze_commandline_args() {
 		    continue
 		fi
 		;;
-	    -x|"${label_skip_localsrc}")
+	    -x|"${label_skip_localsrc}"*)
 		if [[ -n "${2:-}" ]]; then
 		    arg_skiplocal=True
 		    shift
 		    continue
 		fi
 		;;
-	   "${label_overwrite_cssfile}")
+	   "${label_overwrite_css}*")
 		if [[ -n "${2:-}" ]]; then
-		    arg_forceoverwrite_cssfile=True
+		    arg_overwrite_css=True
 		    shift
 		    continue
 		fi
 		;;
-	    "${label_overwrite_fonts}")
+	    "${label_overwrite_fonts}*")
 		if [[ -n "${2:-}" ]]; then
-		    arg_forceoverwrite_fontfiles=True
+		    arg_overwrite_fonts=True
+		    shift
+		    continue
+		fi
+		;;
+	    "${label_overwrite_all}")
+		if [[ -n "${2:-}" ]]; then
+		    arg_overwrite_fonts=True
+		    arg_overwrite_css=True
 		    shift
 		    continue
 		fi
@@ -396,7 +406,8 @@ function download_fontfile() {
     filename="$2"
     ## construct the full path
     outputpath="${checked_dir}/${filename}"
-    if [[ -f "${outputpath}" ]]; then
+    ## see if an existing font file should be overwritten
+    if [[ -f "${outputpath}" ]] && [[ "${arg_overwrite_fonts}x" == "x" ]]; then
 	## return the filename and a specific error
 	printf "${outputpath}"
 	return 1
@@ -768,8 +779,8 @@ arg_subsets="${arg_subsets:-${DEF_ARG_SUBSETS}}"
 ## comma separated list of font formats to be downloaded
 ## defaults to 'practical' (eg 'woff & woff2')
 arg_fontformats="${arg_fontformats:-${DEF_ARG_FONTFORMATS}}"
-arg_forceoverwrite_cssfile="${arg_forceoverwrite_cssfile:-}"
-arg_forceoverwrite_fontfiles="${arg_forceoverwrite_fontfiles:-}"
+arg_overwrite_css="${arg_overwrite_css:-}"
+arg_overwrite_fonts="${arg_overwrite_fonts:-}"
 
 ## initialize arrays for storing validated selections
 ## array to hold the commandline font specification(s)
@@ -815,7 +826,8 @@ a_invalid_specs=()
 a_fonts_exists=()
 nr_downloadfonts=0
 
-label_overwrite_cssfile="--overwrite-cssfile"
+label_overwrite_all="--overwrite"
+label_overwrite_css="--overwrite-css"
 label_overwrite_fonts="--overwrite-fonts"
 label_skip_localsrc="--skip-local"
 a_css_header=("font-face at-rules generated with")
@@ -887,16 +899,14 @@ if [[ $? -eq 0 ]]; then
     if [[ "${arg_output_cssfile}x" == "x" ]]; then
 	arg_output_cssfile=/dev/stdout
     else 
-	if [[ -f "${arg_output_cssfile}" ]]; then
-	    ## css file already exists
-	    if [[ "${arg_forceoverwrite_cssfile}x" == "x" ]]; then
-		## do not overwrite the css file
-		msg="- not overwriting existing css file \`"${arg_output_cssfile}"' \
-(tip: use \`${label_overwrite_cssfile}')."
-		printf 1>&2  "bla: ${msg}\n" 
-		a_msg_err+=("${msg}" )
-		arg_output_cssfile=/dev/stdout
-	    fi
+	if [[ -f "${arg_output_cssfile}" ]] && \
+	       [[ "${arg_overwrite_css}x" == "x" ]]; then
+	    ## css file already exists and should not be overwritten
+	    msg="- not overwriting existing css file \`"${arg_output_cssfile}"' \
+(tip: use \`${label_overwrite_css}')."
+	    printf 1>&2  "bla: ${msg}\n" 
+	    a_msg_err+=("${msg}" )
+	    arg_output_cssfile=/dev/stdout
 	else
 	    ## css file does not exist, try to create its parent directory
 	    cssdir="$(dirname "${arg_output_cssfile}")"

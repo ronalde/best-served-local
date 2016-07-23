@@ -143,12 +143,10 @@ to get a fully automated powertool for your webserver:
 ./best-served-local --incss-fontpath /static/fonts \
 --outputfile /var/www/example.org/static/css/fontdefs.css \
 --fontdirectory /var/www/example.org/static/fonts/
---overwrite-fonts \
---overwrite-cssfile \
+--overwrite \
 --formats superprogressive \
 --subsets latin-ext \
 "Open Sans:300,400,700" "Roboto:100,100italic,regular,italic,900"
-
 ```
 
 ## Some extra features
@@ -267,7 +265,7 @@ For example, to use the default *practical* set, consisting of the
   following predefined names: `cyrillic`, `cyrillic-ext`, `greek`,
   `greek-ext`, `latin` (default), `latin-ext`, `vietnamese` and `all`.
 
-**`-overwrite-cssfile`**
+**`-overwrite-css`**
 : When used together with `--outputfile PATH`, using this argument
 makes the script overwrite the file specified with `PATH` in case it
 exists, which normally does not happen.
@@ -277,6 +275,8 @@ exists, which normally does not happen.
   makes the script overwrite the font files in the directory specified
   with `PATH` in case they exists, which normally does not happen.
 
+**`-overwrite`**
+: Sets both `--overwrite-css` and `--overwrite-fonts`.
 
 ```bash
 ./best-served-local "Open Sans" 
