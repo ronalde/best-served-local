@@ -248,13 +248,13 @@ Or use a javascript '@import' statement:
 **`-f FORMATSPECS`** or **`--formats FORMATSPECS`**
 : `FORMATSPECS` define the font file formats to use. It should be
   specified as one of the *presets*, or a comma-separated list of
-  specific formats. The script recognize the following presets, taken
-  from https://css-tricks.com/snippets/css/using-font-face/:
+  specific formats. The script recognize the presets from
+  [Using @font-face] by Chris Coyier from css-tricks.com:
 
-* `superprogressive`: `woff2`
-* `practical`: `superprogressive` + `woff` (= default)
-* `slightlydeeper`: `practical` + `ttf`
-* `all`: `slightlydeeper` + `eot` + `otf` + `svg`
+  * `superprogressive`: `woff2`
+  * `practical`: `superprogressive` + `woff` (= default)
+  * `slightlydeeper`: `practical` + `ttf`
+  * `all`: `slightlydeeper` + `eot` + `otf` + `svg`
 
 For example, to use the default *practical* set, consisting of the
   `woff` and `woff2` formats, for the "Open Sans" font, use:
@@ -316,6 +316,9 @@ You want something funky? Just tell the script to do so:
 
 [downloaded]:
   http://lacocina.nl/best-served-local
+
+[using @font-face]:
+  https://css-tricks.com/snippets/css/using-font-face
 
 [automate]:
   #fully-automated-usage-example
