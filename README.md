@@ -24,12 +24,12 @@ The commands:
 ./best-served-local "Open Sans" "Roboto:bold,thin"
 ```
 
-and --using the html link element:
+or, using the html `link` element:
 ```bash
 ./best-served-local "<link href='https://fonts.googleapis.com/css?family=Open+Sans|Roboto:700,100' rel='stylesheet' type='text/css'>"
 ```
 
-and --using the @import javascript statement:
+or, using the `@import` javascript statement:
 ```bash
 ./best-served-local "@import url(https://fonts.googleapis.com/css?family=Open+Sans|Roboto:700,100);"
 ```
