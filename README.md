@@ -24,12 +24,17 @@ The commands:
 ./best-served-local "Open Sans" "Roboto:bold,thin"
 ```
 
-and
+and --using the html link element:
 ```bash
 ./best-served-local "<link href='https://fonts.googleapis.com/css?family=Open+Sans|Roboto:700,100' rel='stylesheet' type='text/css'>"
 ```
 
-will both display the following `@font-face` css at-rules:
+and --using the @import javascript statement:
+```bash
+./best-served-local "@import url(https://fonts.googleapis.com/css?family=Open+Sans|Roboto:700,100);"
+```
+
+will all display the following `@font-face` css at-rules:
 
 ```css
 /* >>> script generated css starts here >>> */
@@ -199,6 +204,11 @@ to verify the proper css attributes and such.
 Or use an html 'link' element:
 ```bash
 ./best-served-local "<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,400italic' rel='stylesheet' type='text/css'>"
+```
+
+Or use a javascript '@import' statement:
+```bash
+./best-served-local "@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,400italic);"
 ```
 
 
