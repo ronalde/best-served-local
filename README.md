@@ -254,7 +254,7 @@ Or use a javascript '@import' statement:
   specific formats. The script recognize the presets from
   [Using @font-face] by Chris Coyier from css-tricks.com:
 
-  * `superprogressive`: `woff2`
+  * `superprogressive`: [woff2]
   * `practical`: `superprogressive` + [woff] (= default)
   * `slightlydeeper`: `practical` + `ttf`
   * `all`: `slightlydeeper` + `eot` + `otf` + `svg`
@@ -305,10 +305,10 @@ You want something funky? Just tell the script to do so:
   https://www.w3.org/TR/css-fonts-3/#font-face-rule
 
 [woff2]: 
-  https://www.w3.org/TR/WOFF2/ "`woff2`"
+  https://www.w3.org/TR/WOFF2/
 
 [woff]: 
-  https://www.w3.org/TR/WOFF/ "`woff`"
+  https://www.w3.org/TR/WOFF/
 
 [bulletproof @font-face method]: 
   http://www.paulirish.com/2009/bulletproof-font-face-implementation-syntax/ 
