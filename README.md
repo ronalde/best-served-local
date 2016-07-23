@@ -255,7 +255,7 @@ Or use a javascript '@import' statement:
   [Using @font-face] by Chris Coyier from css-tricks.com:
 
   * `superprogressive`: `woff2`
-  * `practical`: `superprogressive` + `woff` (= default)
+  * `practical`: `superprogressive` + [woff] (= default)
   * `slightlydeeper`: `practical` + `ttf`
   * `all`: `slightlydeeper` + `eot` + `otf` + `svg`
 
@@ -303,6 +303,12 @@ You want something funky? Just tell the script to do so:
 
 [@font-face css3 rules]: 
   https://www.w3.org/TR/css-fonts-3/#font-face-rule
+
+[woff2]: 
+  https://www.w3.org/TR/WOFF2/ "`woff2`"
+
+[woff]: 
+  https://www.w3.org/TR/WOFF/ "`woff`"
 
 [bulletproof @font-face method]: 
   http://www.paulirish.com/2009/bulletproof-font-face-implementation-syntax/ 
