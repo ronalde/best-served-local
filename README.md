@@ -323,14 +323,10 @@ You want something funky? Just tell the script to do so:
 [using @font-face]:
   https://css-tricks.com/snippets/css/using-font-face
 
-[automate]:
-  #fully-automated-usage-example
+[automate]: #fully-automated-usage-example
 
-[FONTSPEC]:
-  #required-argument
+[FONTSPEC]: #required-argument
 
-[commandline arguments]:
-  #commandline-arguments-reference
+[commandline arguments]: #commandline-arguments-reference
 
-[optional]:
-  #optional-arguments
+[optional]: #optional-arguments
