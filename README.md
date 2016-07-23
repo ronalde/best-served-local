@@ -7,7 +7,7 @@
 Inspired by the idea of [google-font-download] by Clemens Lang (also
 written in bash v4) and the functionality of [google-webfonts-helper]
 (client side browser app in javascript), I developed this script to
-make it easy to [automate](#automated) (via cron and such) the
+make it easy to [automate] (via cron and such) the
 downloading of remote web fonts and the creation of high quality
 [@font-face css3 rules] using the [bulletproof @font-face method] by
 Paul Irish for serving from my own webserver.
@@ -19,12 +19,17 @@ Apart from [bash] version 4, this script only depends on [curl].
 
 ## Simple usage example
 
-The command:
+The commands:
 ```bash
-./best-served-local "Open Sans" "Roboto:light,black"
+./best-served-local "Open Sans" "Roboto:bold,thin"
 ```
 
-Will display the following `@font-face` css at-rules:
+and
+```bash
+./best-served-local "<link href='https://fonts.googleapis.com/css?family=Open+Sans|Roboto:700,100' rel='stylesheet' type='text/css'>"
+```
+
+will both display the following `@font-face` css at-rules:
 
 ```css
 /* >>> script generated css starts here >>> */
@@ -38,22 +43,22 @@ Will display the following `@font-face` css at-rules:
 		font-weight: 400;
 }
 @font-face {
- 	font-family: 'Roboto';
+	font-family: 'Roboto Bold';
 	src: 
-	     local('Roboto Light'), local('Roboto-Light'), 
-	     url('Roboto_Light_v15_latin_300.woff2') format('woff2'),
-	     url('Roboto_Light_v15_latin_300.woff') format('woff');
-	     font-style:  normal;
-	     font-weight: 300;
+	     local('Roboto Bold'), local('Roboto-Bold'), 
+	     url('Roboto_Bold_v15_latin_700.woff2') format('woff2'),
+	     url('Roboto_Bold_v15_latin_700.woff') format('woff');
+	font-style:  normal;
+	font-weight: 700;
 }
 @font-face {
-	font-family: 'Roboto';
+ 	font-family: 'Roboto Thin';
 	src: 
-	     local('Roboto Black'), local('Roboto-Black'), 
-	     url('Roboto_Black_v15_latin_900.woff2') format('woff2'),
-	     url('Roboto_Black_v15_latin_900.woff') format('woff');
-	font-style:  normal;
-	font-weight: 900;
+	     local('Roboto Thin'), local('Roboto-Thin'), 
+	     url('Roboto_Thin_v15_latin_100.woff2') format('woff2'),
+	     url('Roboto_Thin_v15_latin_100.woff') format('woff');
+	     font-style:  normal;
+	     font-weight: 100;
 }
 /* <<< script generated css ends here <<< */
 ```
@@ -65,10 +70,10 @@ ready to be passed over to your webserver:
 /tmp/best-served-local.XXXX
 ├── Open_Sans_v13_latin_400.woff
 ├── Open_Sans_v13_latin_400.woff2
-├── Roboto_Black_v15_latin_900.woff
-├── Roboto_Black_v15_latin_900.woff2
-├── Roboto_Light_v15_latin_300.woff
-└── Roboto_Light_v15_latin_300.woff2
+├── Roboto_Bold_v15_latin_700.woff
+├── Roboto_Bold_v15_latin_700.woff2
+├── Roboto_Thin_v15_latin_100.woff
+└── Roboto_Thin_v15_latin_100.woff2
 ```
 
 
@@ -170,11 +175,12 @@ to verify the proper css attributes and such.
 ### Required argument
 
 **`FONTSPEC`**
-: A `FONTSPEC` is a space separated list of family names, surrounded
-  with quotes or space-escaped, with an optional suffix, consisting of
-  `:`, followed by a comma separated list of font weight/style values.
-  For example, to use *"Open Sans"* in the regular font weight and style
-  use:
+: A `FONTSPEC` is either a space separated list of family names,
+  surrounded with quotes or space-escaped, with an optional suffix,
+  consisting of `:`, followed by a comma separated list of font
+  weight/style values, or a full html link-element, as produced by
+  https://www.google.com/fonts.  For example, to use *"Open Sans"* in
+  the regular font weight and style use:
 ```bash
 ./best-served-local "Open Sans"
 ```
@@ -189,6 +195,12 @@ to verify the proper css attributes and such.
 ```bash
 ./best-served-local "Open Sans:regular:italic" "Web Font A:extrabold,superlight"
 ```
+
+Or use an html 'link' element:
+```bash
+./best-served-local "<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,400italic' rel='stylesheet' type='text/css'>"
+```
+
 
 ### Optional arguments
 
@@ -298,6 +310,9 @@ You want something funky? Just tell the script to do so:
 
 [downloaded]:
   http://lacocina.nl/best-served-local
+
+[automate]:
+  #fully-automated-usage-example
 
 [FONTSPEC]:
   #required-argument
