@@ -225,8 +225,8 @@ Or use a javascript '@import' statement:
 : The `PATH` of the directory to save the downloaded web fonts
   in. `PATH` can be relative to the working directory
   (eg. `../static/fonts`) or absolute
-  (eg. `/srv/www/example.org/static/css/fonts`). When not supplied,
-  the script will save the fonts in a temporary directory, which is
+  (eg. `/srv/www/example.org/static/css/fonts`). When not specified,
+  the script will save the fonts in a temporary directory, which it
   will display when the script has finished.
 
 **`-i PATH`** or **`--incss-fontpath PATH`**
