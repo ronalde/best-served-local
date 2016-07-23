@@ -256,8 +256,8 @@ Or use a javascript '@import' statement:
 
   * `superprogressive`: [woff2]
   * `practical`: `superprogressive` + [woff] \(= default)
-  * `slightlydeeper`: `practical` + `ttf`
-  * `all`: `slightlydeeper` + `eot` + `otf` + `svg`
+  * `slightlydeeper`: `practical` + [ttf]
+  * `all`: `slightlydeeper` + [eot] + [otf] + [svg]
 
 For example, to use the default *practical* set, consisting of the
   `woff` and `woff2` formats, for the "Open Sans" font, use:
@@ -309,6 +309,18 @@ You want something funky? Just tell the script to do so:
 
 [woff]: 
   https://www.w3.org/TR/WOFF/
+
+[ttf]:
+  https://www.microsoft.com/typography/TrueTypeFonts.mspx
+
+[eot]:
+  https://en.wikipedia.org/wiki/Embedded_OpenType
+
+[otf]:
+  http://www.iso.org/iso/home/store/catalogue_ics/catalogue_detail_ics.htm?csnumber=66391
+
+[svg]:
+  https://www.w3.org/TR/SVG/fonts.html
 
 [bulletproof @font-face method]: 
   http://www.paulirish.com/2009/bulletproof-font-face-implementation-syntax/ 
