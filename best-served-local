@@ -299,12 +299,16 @@ function analyze_commandline_args() {
 
     pipes_in_arg=0
     pipes_in_arg=${arg_fontspecs//[^|]}
-    if [[ ${#pipes_in_arg} -gt 0 ]]; then
+    if [[ ${#pipes_in_arg} -gt 0 ]] || [[ "${arg_fontspecs}" =~ ${goggle_re} ]]; then
+	printf 1>&2 "'%s'\n" "${arg_fontspecs}"
 	## fontspec contains at least a pipe symbol: it probably is the value of the href-attribute of
 	## an html link-element, eg. 'WebfontA:100|WebfontB:italic')
 	if [[ "${arg_fontspecs}" =~ ${goggle_re} ]]; then
 	    ## the FONTSPEC contains the Google font url; strip it
-	    arg_fontspecs="$(htmlcsslink_to_fontspeclist "${BASH_REMATCH[1]}")"
+	    re_match="${BASH_REMATCH[1]}"
+	    ## convert any plus sign to space
+	    re_match="${re_match//+/ }"
+	    arg_fontspecs="$(htmlcsslink_to_fontspeclist "${re_match}")"
 	else
 	    arg_fontspecs="$(htmlcsslink_to_fontspeclist "${arg_fontspecs}")"
 	fi
@@ -798,7 +802,7 @@ useragent[svgz]="${useragent[svg]}"
 useragent[ttf]='Mozilla/5.0 (Windows NT 6.1) AppleWebKit/534.54.16 (KHTML, like Gecko) Version/5.1.4 Safari/534.54.16'
 useragent[otf]='Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US))'
 
-goggle_re="['http']?[s]?//fonts\.googleapis\.com/css\?family=(.*)"
+goggle_re="['<link href=\"']?['http']?[s]?//fonts\.googleapis\.com/css\?family=([^[:space:]]*)"
 
 a_invalid_specs=()
 a_fonts_exists=()
