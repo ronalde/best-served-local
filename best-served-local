@@ -338,7 +338,6 @@ function htmlcsslink_to_fontspeclist() {
     for fontspec in ${fontspecs}; do 
 	printf "%s\n" "${fontspec}"
     done
-
 }
 
 
@@ -365,7 +364,7 @@ function generate_css() {
     fi
     ## start the src attribute
     font_face_template+="""\
-   src: 
+   src: \
 """
     ## check if the local property/properties should be set
     if [[ "${arg_skiplocal}x" == "x" ]]; then 
@@ -392,7 +391,7 @@ function generate_css() {
 """
     ## return the filled-in template to the calling function
     printf "${font_face_template}" \
-		"${cssattr_src_local_nonps}" \
+		"${cssattr_font_family}" \
 		"${cssattr_src_urlformats}" \
 		"${cssattr_font_style}" \
 		"${cssattr_font_weight}"
@@ -430,14 +429,16 @@ function download_fontfile() {
 
 
 function httpget_atrule_google() {
-    # validates the chosen combination of font and language subset at
-    # google using curl, and returns the resulting font-face atrule to
-    # the calling function, or exits with error
+    ## validates the chosen combination of font and language subset at
+    ## google using curl, and returns the resulting font-face atrule
+    ## to the calling function, or, if the format ($4) is specified,
+    ## retrieve the download url for the font. Exits with error when
+    ## no success.
     fontname="$1"
-    fontstyle="$2"
+    fontstyleweight="$2"
     fontcharset="$3"
     fontformat="${4:-x}" ## only used in the second iteration
-    fontfamily="${fontname}:${fontstyle}"
+    fontfamily="${fontname}:${fontstyleweight}"
 
     ## set curl arguments
     ret=
@@ -450,7 +451,7 @@ function httpget_atrule_google() {
 		   --data-urlencode "subset=${fontcharset}")
     ## in the second iteration, the fonts' file format is specified,
     ## which will be used to mimic a certian user agent
-    if [[ "${fontformat}x" != "xx" ]]; then
+    if [[ "${fontformat}x" != "x" ]]; then
 	curl_args+=(--user-agent "'${useragent[${fontformat}]}'")
     fi
     cssattr_font_face="$(${cmd_curl} "${curl_args[@]}" "${GOOGLE_FONTAPI_URL}" 2>&1)" || ret=$?
@@ -632,7 +633,7 @@ function process_atrule() {
 	    add_eot_src_attr=
 	    cssattr_font_face="$(httpget_atrule_google \
 		"${cssattr_font_family}" \
-		"${cssattr_font_style}" \
+		"${cssattr_font_weight}${cssattr_font_style}" \
 		"${charset}" \
 		"${fontformat}")"
 	    ## determine and set the filename's extension, suffix
