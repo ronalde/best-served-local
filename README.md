@@ -6,7 +6,7 @@
 
 With the advent of using web fonts on your website --which is a good
 idea-- you may (involuntary) submit some of the online behaviour of
-*your visitors* [fn-behaviouraltargeting] to Google without their
+*your visitors* (called [behavioural targeting]) to Google without their
 knowledge or consent. This of course is a very bad idea. This script
 assist you in preserving the good while preventing the bad by
 downloading Google web fonts to your own webserver and create the
@@ -360,5 +360,5 @@ You want something funky? Just tell the script to do so:
 
 [optional]: #optional-arguments
 
-[fn-behaviouraltargeting]:
+[behavioural targeting]:
 	http://dare.uva.nl/document/2/154442
