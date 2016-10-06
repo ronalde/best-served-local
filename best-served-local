@@ -32,11 +32,11 @@ DEF_ARG_SUBSETS="latin"
 ## comma separated list of font formats to be downloaded
 ## defaults to 'practical' (eg 'woff & woff2')
 DEF_ARG_FONTFORMATS="practical"
-
+## app defaults
 APP_NAME="best-served-local"
 APP_VERSION="0.1"
 APP_URL="https://lacocina.nl/using-${APP_NAME}"
-
+## foofle constants
 GOOGLE_FONTAPI_HOST="fonts.googleapis.com"
 GOOGLE_FONTAPI_URL="https://${GOOGLE_FONTAPI_HOST}/css"
 
@@ -255,14 +255,14 @@ function analyze_commandline_args() {
 		    continue
 		fi
 		;;
-	   "${label_overwrite_css}*")
+	   "${label_overwrite_css}"*)
 		if [[ -n "${2:-}" ]]; then
 		    arg_overwrite_css=True
 		    shift
 		    continue
 		fi
 		;;
-	    "${label_overwrite_fonts}*")
+	    "${label_overwrite_fonts}"*)
 		if [[ -n "${2:-}" ]]; then
 		    arg_overwrite_fonts=True
 		    shift
