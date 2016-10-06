@@ -7,14 +7,13 @@
 Inspired by the idea of [google-font-download] by Clemens Lang (also
 written in bash v4) and the functionality of [google-webfonts-helper]
 (client side browser app in javascript), I developed this script to
-make it easy to [automate] --via cron and such-- the
+make it easy to [automate] via cron and such] the
 downloading of remote web fonts and the creation of high quality
 [@font-face css3 rules] using the [bulletproof @font-face method] by
 Paul Irish for serving from my own webserver.
 
-Apart from [bash] version 4, this script only depends on [curl]. 
-
-> It's not tested on OSX yet.
+Apart from [bash] version 4, this script only depends on [curl] 
+(it's not tested on OSX yet).
 
 
 ## Simple usage example

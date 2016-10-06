@@ -53,10 +53,8 @@ function get_fontsdirectory() {
     ## and create it if neccessary, or create a temporary
     ## directory. returns the path to the directory or an error with
     ## description.
-
     declare -a a_msg_err
     msg=
-    
     if [[ "${arg_fonts_dir}x" == "x" ]]; then
 	## no font directory specified, create a temporary one
 	arg_fonts_dir="$(mktemp -dt ${APP_NAME}.XXXX)"
@@ -79,7 +77,6 @@ function get_fontsdirectory() {
 	    fi
 	fi
     fi
-
     if [[ ${#a_msg_err[@]} -gt 0 ]]; then
 	printf "The following error occured:\n%s\n" "${a_msg_err[@]}"
 	return 1
@@ -87,9 +84,7 @@ function get_fontsdirectory() {
 	## return its path
 	printf "%s" "${arg_fonts_dir}"
     fi
-    
 }
-
 
 function display_usageinfo() {
     msg="""Usage:
