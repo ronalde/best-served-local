@@ -826,14 +826,26 @@ label_overwrite_all="--overwrite"
 label_overwrite_css="--overwrite-css"
 label_overwrite_fonts="--overwrite-fonts"
 label_skip_localsrc="--skip-local"
-a_css_header=("font-face at-rules generated with")
-a_css_header+=("      ${0:-APP_NAME} (version ${APP_VERSION})")
-a_css_header+=("   using arguments:")
-a_css_header+=("      $(printf "%s " "$@")")
-a_css_header+=(" ")
-a_css_header+=(">>> font-face at-rules start here >>>")
-css_header="$(printf "%s\n" "${a_css_header[@]}")"
-css_footer="<<< generated font-face at-rules end here <<<"
+if [[ "${0}" =~ /dev/fd.* ]]; then
+    ## script loaded from stdin
+    label_appname="${APP_NAME}"
+else
+    label_appname="${0:-APP_NAME}"
+fi
+cmdline_args_raw="$(printf "%s " "$@" | fmt)"
+cmdline_args="$(while read -r line; 
+do printf "%s \ \n" "${line}"; 
+done< <(printf "%s \n" "${cmdline_args_raw}"))"
+## strip last line continuation mark
+cmdline_args="${cmdline_args%%\\ }"
+css_header="/* font-face at-rules generated with ${label_appname} (version ${APP_VERSION})
+   using command:
+${label_appname} \ "
+css_header+="
+${cmdline_args}
+>>> font-face at-rules start here >>> */"
+#css_header="$(printf "%s\n" "${raw_css_header}" | fmt --prefix="/*")"
+css_footer="/* <<< generated font-face at-rules end here <<< */"
 
 ## main program flow
 
@@ -921,14 +933,12 @@ if [[ $? -eq 0 ]]; then
 	    fi 
 	fi
     fi
-
-    css_header+=""
     if [[ ${#a_atrules_created[@]} -gt 0 ]]; then
-	printf "/* %s */\n" "${css_header}" > "${arg_output_cssfile}"
+	printf "%s\n" "${css_header}" > "${arg_output_cssfile}"
 	for atrule in "${a_atrules_created[@]}"; do 
 	    printf "%s\n" "${atrule}" >> "${arg_output_cssfile}"
 	done 
-	printf "/* %s */\n" "${css_footer}" >> "${arg_output_cssfile}"
+	printf "%s\n" "${css_footer}" >> "${arg_output_cssfile}"
 	## download the font files if applicable
 	if [[ "${arg_skipdownload}x" == "x" ]]; then 
 	    printf 1>&2 "Downloading font files " 
