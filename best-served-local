@@ -97,11 +97,6 @@ function display_usageinfo() {
         [-h|--help] \\
         FONTSPEC
 
-  With default settings, a CSS Level 3 @font-face atrule is printed to
-  stdout and the font files are downloads to a temporary
-  directory. Errors and warnings are printed to stderr, so it should
-  be save to redirect the output.
-
   OPTIONAL ARGUMENTS
   -o|--outputfile PATH     Path to the file to save the CSS in.
   -d|--fontdirectory PATH  Path to the directory to download fonts to.
@@ -114,6 +109,11 @@ function display_usageinfo() {
   ${label_overwrite_fonts}    Overwrite existing font files.
   ${label_overwrite_all}    Overwrite existing font and css files.
   -h|--help                Show this help message and exit.
+
+  With default settings, a CSS Level 3 @font-face atrule is printed to
+  stdout and the font files are downloads to a temporary
+  directory. Errors and warnings are printed to stderr, so it should
+  be save to redirect the output.
 
   FONTSPEC should be space separated list of family names, with
   optional suffix consisting of \`:' with a comma separated list of
