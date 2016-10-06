@@ -88,12 +88,12 @@ The script can be cloned or forked from its [github repository],
 advise against that):
 
 ```bash
-bash <(wget -q -O - "http://lacocina.nl/best-served-local") "Roboto:100,900"
+bash <(wget -q -O - "https://lacocina.nl/best-served-local") "Roboto:100,900"
 ```
 
 Or, when you prefer `curl`:
 ```bash
-bash <(curl -sL "http://lacocina.nl/best-served-local") -f all Slabo\ 27px
+bash <(curl -sL "https://lacocina.nl/best-served-local") -f all Slabo\ 27px
 ```
 
 To display all [commandline arguments], run it with `--help` (or `-h`)
@@ -335,7 +335,7 @@ You want something funky? Just tell the script to do so:
   https://github.com/ronalde/best-served-local
 
 [downloaded]:
-  http://lacocina.nl/best-served-local
+  https://lacocina.nl/best-served-local
 
 [using @font-face]:
   https://css-tricks.com/snippets/css/using-font-face
