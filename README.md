@@ -4,16 +4,25 @@
 
 ## Rationale
 
-Inspired by the idea of [google-font-download] by Clemens Lang and the
-functionality of [google-webfonts-helper] (client side browser app in
-javascript), I developed this bash v4 script to make it easy to
-[automate] the downloading of remote web fonts and the creation of
-high quality [@font-face css3 rules] using the
-[bulletproof @font-face method] by Paul Irish for serving from my own
-webserver.
+With the advent of using web fonts on your website --which is a good
+idea-- you may (involuntary) submit some of the online behaviour of
+*your visitors*[fn-behaviouraltargeting] to Google without their
+knowledge or consent. This of course is a very bad idea. This script
+assist you in preserving the good while preventing the bad by
+downloading Google web fonts to your own webserver and create the
+accompying CSS code to serve that yourself, instead of letting your
+users downloading them from Google which each visit to your pages.
 
-Apart from [bash] version 4, this script only depends on [curl] or
-[wget]. The script is not tested on OSX yet.
+The script was inspired by [google-font-download] by Clemens Lang and
+the functionality of [google-webfonts-helper] (client side browser app
+in javascript). The latter uses javascript while I needed bash (v4),
+while mr. Lang's script missed some functionality I would like. This
+script adds [automation] and creates high quality
+[@font-face css3 rules] using the [bulletproof @font-face method] by
+Paul Irish for serving from your own webserver.
+
+Apart from [bash] version 4, this script only depends on [curl] (or
+[wget]). The script is not tested on OSX yet.
 
 
 ## Simple usage example
@@ -343,10 +352,13 @@ You want something funky? Just tell the script to do so:
 [using @font-face]:
   https://css-tricks.com/snippets/css/using-font-face
 
-[automate]: #fully-automated-usage-example
+[automation]: #fully-automated-usage-example
 
 [FONTSPEC]: #required-argument
 
 [commandline arguments]: #commandline-arguments-reference
 
 [optional]: #optional-arguments
+
+[fn-behaviouraltargeting]:
+	http://dare.uva.nl/document/2/154442
