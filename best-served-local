@@ -394,27 +394,39 @@ function generate_css() {
 
 
 function download_fontfile() {
-    ## download the font file from url ($1), save it locally in
-    ## directory $3 with filename $2.
-    url="$1"
-    filename="$2"
+    ## download the font file using $1 from url $2, save it locally in
+    ## directory ${checked_dir} with filename $3.
+    cmd_download="$1"
+    url="$2"
+    filename="$3"
+    local download_args=()
     ## construct the full path
-    outputpath="${checked_dir}/${filename}"
+    local outputpath="${checked_dir}/${filename}"
     ## see if an existing font file should be overwritten
     if [[ -f "${outputpath}" ]] && [[ "${arg_overwrite_fonts}x" == "x" ]]; then
 	## return the filename and a specific error
 	printf "${outputpath}"
 	return 1
     fi
-    curl_args=(--get \
-		   --silent \
-		   #--verbose \
-		   --show-error \
-		   --fail)
-    res="$(${cmd_curl} "${curl_args[@]}" "${url}" -o "${outputpath}" 2>&1)"
+    if [[ "${cmd_download}" == "${cmd_wget}" ]]; then
+	## use wget
+	download_args=(-O "${outputpath}")
+	download_args+=("${url}")
+    else
+	## use curl
+	download_args=(--get)
+	download_args+=(--silent)
+	#download_args+=(--verbose)
+	download_args+=(--show-error)
+	download_args+=(--fail)
+	download_args+=("${url}")
+	download_args+=(-o "${outputpath}")
+    fi
+    res="$(${cmd_download} "${download_args[@]}" 2>&1)"
     if [[ $? -ne 0 ]]; then
 	errors=1
-	printf "%s curl error downloading font: '%s'" "${FUNCNAME}" "${res}"
+	printf "%s %s error %s downloading font:\n%s\n" \
+		    "${FUNCNAME}" "${cmd_download}" "${ret}" "${res}"
 	return 3
     else
 	printf "succesfully downloaded font file to '%s' in directory '%s'." \
@@ -426,33 +438,48 @@ function download_fontfile() {
 function httpget_atrule_google() {
     ## validates the chosen combination of font and language subset at
     ## google using curl, and returns the resulting font-face atrule
-    ## to the calling function, or, if the format ($4) is specified,
+    ## to the calling function, or, if the format ($5) is specified,
     ## retrieve the download url for the font. Exits with error when
     ## no success.
-    fontname="$1"
-    fontstyleweight="$2"
-    fontcharset="$3"
-    fontformat="${4:-x}" ## only used in the second iteration
+    ## in the second iteration ("${fontformat}x" != "x") the fonts'
+    ## file format is specified, which will be used to mimic a certian
+    ## user agent.
+    cmd_download="$1"
+    fontname="$2"
+    fontstyleweight="$3"
+    fontcharset="$4"
+    fontformat="${5:-x}" ## only used in the second iteration
     fontfamily="${fontname}:${fontstyleweight}"
-
-    ## set curl arguments
-    ret=
-    curl_args=(--get \
-		   --silent \
-		   #--verbose \
-		   --show-error \
-		   --fail \
-		   --data-urlencode "family=${fontfamily}" \
-		   --data-urlencode "subset=${fontcharset}")
-    ## in the second iteration, the fonts' file format is specified,
-    ## which will be used to mimic a certian user agent
-    if [[ "${fontformat}x" != "x" ]]; then
-	curl_args+=(--user-agent "'${useragent[${fontformat}]}'")
+    local download_args=()
+    if [[ "${cmd_download}" == "${cmd_wget}" ]]; then
+	## use wget
+	download_args=(-O "-")
+	str_postdata="family=${fontfamily}&subset=${fontcharset}"
+	if [[ "${fontformat}x" != "x" ]]; then
+	    download_args+=(--user-agent="'${useragent[${fontformat}]}'")
+	fi
+	## needed for making wget understand options stop and url starts
+	download_args+=(--)
+	download_args+=("${GOOGLE_FONTAPI_URL}?${str_postdata}")
+    else
+	## use curl
+	download_args=(--get)
+	download_args+=(--silent)
+	download_args+=(--show-error)
+	download_args+=(--fail)
+	download_args+=(--data-urlencode "family=${fontfamily}")
+	download_args+=(--data-urlencode "subset=${fontcharset}")
+	if [[ "${fontformat}x" != "x" ]]; then
+	    download_args+=(--user-agent "'${useragent[${fontformat}]}'")
+	fi
+	download_args+=("${GOOGLE_FONTAPI_URL}")
     fi
-    cssattr_font_face="$(${cmd_curl} "${curl_args[@]}" "${GOOGLE_FONTAPI_URL}" 2>&1)" || ret=$?
+    cssattr_font_face="$(LANG=C ${cmd_download} "${download_args[@]}" 2>&1)"
+    ret=$?
     if [[ ${ret} -ne 0 ]]; then
 	errors=1
-	printf "%s error: %s\n" "${FUNCNAME}" "${cssattr_font_face}"
+	printf "%s error %s using %s:\n%s\n" \
+	       "${FUNCNAME}" "${ret}" "${cmd_download}" "${cssattr_font_face}"
 	return 1
     else
 	## return the complete font-face atrule
@@ -557,7 +584,6 @@ function process_atrule() {
     download_url=
     font_version=""
     a_url_format_attrs=()
-
     ## setup regular expressions to match css attributes and to
     ## determine their values
     re_font_family="font-family:[[:space:]]*'(.*)';"
@@ -571,7 +597,6 @@ function process_atrule() {
     ## matches only 'format(...)'
     re_src_url_format="${re_src_url}[[:space]]*format\(([^[:space]]*)\)"
     re_src_url_version="/(v[0-9]*)/"
-
     ## process the (newline separated) font-face atrule
     while read -r line; do
 	if [[ "${line}" =~ ${re_font_family} ]]; then
@@ -593,7 +618,6 @@ function process_atrule() {
 	    cssattr_src="${BASH_REMATCH[1]}"	
 	fi
     done<<<"${cssattr_font_face}"
-
     ## parse the src attribute to extract the 'local' font family
     ## values for both the non-PS and PS family name, and the
     ## 'url(...) format(...)' values for the version of the font
@@ -621,16 +645,16 @@ function process_atrule() {
     if [[ "${cssattr_src_url}" =~ ${re_src_url_version} ]]; then
 	font_version="${BASH_REMATCH[1]}_"
     fi
-   
     ## process each format/charset 
     for fontformat in ${a_checked_fontformats[@]}; do
 	for charset in ${a_checked_subsets[@]}; do
 	    add_eot_src_attr=
 	    cssattr_font_face="$(httpget_atrule_google \
-		"${cssattr_font_family}" \
-		"${cssattr_font_weight}${cssattr_font_style}" \
-		"${charset}" \
-		"${fontformat}")"
+	    "${cmd_download}" \
+	    "${cssattr_font_family}" \
+	    "${cssattr_font_weight}${cssattr_font_style}" \
+	    "${charset}" \
+	    "${fontformat}")"
 	    ## determine and set the filename's extension, suffix
 	    ## (part after the extension) and other quirk workarounds
 	    suffix=
@@ -679,7 +703,6 @@ function process_atrule() {
 		a_url_format_attrs+=("$(printf "${url_format_template}" \
 "${arg_incss_fontsdir%/}/${filename}${suffix}" "${label_format}")")
 	    fi
-
 	    if [[ "${arg_skipdownload}x" == "x" ]]; then
 		## download the web font(s)
 		## get the url for this format/charset
@@ -691,7 +714,6 @@ function process_atrule() {
 		    ## try the next charset
 		    continue
 		fi
-
 		## add an array item
 		a_downloads[${filename}]="${download_url}"
 	    fi
@@ -738,7 +760,10 @@ function create_atrules() {
             ## (eg. 'Font_Name:weightx,weighty') and get and return it's
 	    ## font-face atrule
 	    atrule="$(httpget_atrule_google \
-"${fontname//\'/}" "${fontstyle//\'/}" "${a_checked_subsets[@]}")"
+"${cmd_download}" \
+"${fontname//\'/}" \
+"${fontstyle//\'/}" \
+"${a_checked_subsets[@]}")"
 
 	    if [[ $? -ne 0 ]]; then
 		## add the invalid specification to the array
@@ -872,13 +897,20 @@ a_checked_subsets=( $(validate_arg_subsets "${arg_subsets}") )
 if [[ $? -ne 0 ]]; then
     err_exit "Error: no valid SUBSET supplied."
 fi
-## check if curl is installed
+## check if curl or wget is installed
+cmd_download=
 cmd_curl=$(type -p curl)
 if [[ $? -ne 0 ]]; then
-    printf 1>&2 "Error: required command \`curl' not found.\n"
-    exit 1
+    cmd_wget=$(type -p wget)
+    if [[ $? -ne 0 ]]; then
+        printf 1>&2 "Error: required command \`curl' or \`wget' not found.\n"
+	exit 1
+    else
+	cmd_download="${cmd_wget}"
+    fi
+else
+    cmd_download="${cmd_curl}"
 fi
-
 ## check the output directory if applicable
 if [[ "${checked_dir}x" == "x" ]]; then
     checked_dir="$(get_fontsdirectory "${directory}")"
@@ -943,7 +975,8 @@ if [[ $? -eq 0 ]]; then
 	if [[ "${arg_skipdownload}x" == "x" ]]; then 
 	    printf 1>&2 "Downloading font files " 
 	    for filename in "${!a_downloads[@]}"; do
-		res="$(download_fontfile "${a_downloads[${filename}]}" "${filename}")"
+		res="$(download_fontfile "${cmd_download}" \
+ "${a_downloads[${filename}]}" "${filename}")"
 		## consider failed download non-fatal
 		case $? in
 		    0) printf 1>&2 "." ;;
