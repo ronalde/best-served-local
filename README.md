@@ -35,16 +35,17 @@ Each of the following commands will lead to the same result:
 ```
 * or, use the html `link` element from your current templates and pages:
 ```bash
-./best-served-local -o /tmp/fonts.css \
+bash best-served-local -o /tmp/fonts.css \
   "<link href='https://fonts.googleapis.com/css?family=Open+Sans|Roboto:700,100' rel='stylesheet' type='text/css'>"
 ```
 * or, use the `@import` javascript statement:
 ```bash
-./best-served-local --outputfile /tmp/fonts.css \
+bash <(wget -q -O- "https://lacocina.nl/best-served-local") \
+   --outputfile /tmp/fonts.css \
   "@import url(https://fonts.googleapis.com/css?family=Open+Sans|Roboto:700,100);"
 ```
 
-All three of them will create the file `/tmp/fonts.css` with the
+All three commands will create the file `/tmp/fonts.css` with the
 following `@font-face` css at-rules:
 
 ```css
@@ -79,8 +80,8 @@ following `@font-face` css at-rules:
 /* <<< script generated css ends here <<< */
 ```
 
-... and in a (new) temporary directory, the following files are downloaded,
-ready to be served to your visitors by your webserver:
+... and in a (new) temporary directory, the following files are
+downloaded, ready to be served to your visitors by your webserver:
 
 ```
 /tmp/best-served-local.XXXX
@@ -100,12 +101,26 @@ The script can be cloned or forked from its [github repository],
 advise against that):
 
 ```bash
+## running it straight from the web
 bash <(wget -q -O - "https://lacocina.nl/best-served-local") "Roboto:100,900"
 ```
 
 Or, when you prefer `curl`:
 ```bash
 bash <(curl -sL "https://lacocina.nl/best-served-local") -f all Slabo\ 27px
+```
+
+Or, download first, run next:
+```bash
+wget "https://lacocina.nl/best-served-local"
+bash best-served-local "Roboto:100,900"
+```
+
+Or, download to path, make executable, then run:
+```bash
+wget -O /usr/local/bin/best-served-local "https://lacocina.nl/best-served-local"
+chmod +x /usr/local/bin/best-served-local
+best-served-local -o /tmp/fonts.css "Roboto:100,900" "Slabo 27px:400,600"
 ```
 
 To display all [commandline arguments], run it with `--help` (or `-h`)
