@@ -38,7 +38,7 @@ Each of the following commands will lead to the same result:
 bash best-served-local -o /tmp/fonts.css \
   "<link href='https://fonts.googleapis.com/css?family=Open+Sans|Roboto:700,100' rel='stylesheet' type='text/css'>"
 ```
-* or, use the `@import` javascript statement:
+* or, use a css `@import` rule:
 ```bash
 bash <(wget -q -O- "https://lacocina.nl/best-served-local") \
    --outputfile /tmp/fonts.css \
@@ -208,8 +208,10 @@ to verify the proper css attributes and such.
   surrounded with quotes or space-escaped, with an optional suffix,
   consisting of `:`, followed by a comma separated list of font
   weight/style values, or a full html link-element, as produced by
-  https://www.google.com/fonts.  For example, to use *"Open Sans"* in
-  the regular font weight and style use:
+  https://www.google.com/fonts, or a css `@import` rule. 
+  
+  For example, to use *"Open Sans"* in the regular font weight and
+  style use:
 ```bash
 ./best-served-local "Open Sans"
 ```
@@ -225,12 +227,12 @@ to verify the proper css attributes and such.
 ./best-served-local "Open Sans:regular:italic" "Web Font A:extrabold,superlight"
 ```
 
-Or use an html 'link' element:
+  Or use an html `link` element:
 ```bash
 ./best-served-local "<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,400italic' rel='stylesheet' type='text/css'>"
 ```
 
-Or use a javascript '@import' statement:
+  Or use a css `@import` rule:
 ```bash
 ./best-served-local "@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,400italic);"
 ```
@@ -283,8 +285,22 @@ Or use a javascript '@import' statement:
   * `slightlydeeper`: `practical` + [ttf]
   * `all`: `slightlydeeper` + [eot] + [otf] + [svg]
 
-For example, to use the default *practical* set, consisting of the
+  For example, to use the default *practical* set, consisting of the
   `woff` and `woff2` formats, for the "Open Sans" font, use:
+
+```bash
+./best-served-local "Open Sans" 
+```
+
+  To get full browser support (and thus heavy per page downloads), use:
+```bash
+./best-served-local -f all "Open Sans" 
+```
+
+  You want something funky? Just tell the script to do so:
+```bash
+./best-served-local -f "eot,svg" "Open Sans" 
+```
 
 **`-s SUBSETSPEC`** or **`--subsets SUBSETSPEC`**
 : Comma-separated list of `SUBSETS`. A `SUBSET` is one of the
@@ -303,20 +319,6 @@ exists, which normally does not happen.
 
 **`-overwrite`**
 : Sets both `--overwrite-css` and `--overwrite-fonts`.
-
-```bash
-./best-served-local "Open Sans" 
-```
-
-To get full browser support (and thus heavy per page downloads), use:
-```bash
-./best-served-local -f all "Open Sans" 
-```
-
-You want something funky? Just tell the script to do so:
-```bash
-./best-served-local -f eot,svg "Open Sans" 
-```
 
 
 ---------------
