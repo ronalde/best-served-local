@@ -34,7 +34,7 @@ DEF_ARG_SUBSETS="latin"
 DEF_ARG_FONTFORMATS="practical"
 ## app defaults
 APP_NAME="best-served-local"
-APP_VERSION="0.1"
+APP_VERSION="0.4"
 APP_URL="https://lacocina.nl/using-${APP_NAME}"
 ## foofle constants
 GOOGLE_FONTAPI_HOST="fonts.googleapis.com"
