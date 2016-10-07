@@ -120,7 +120,7 @@ Or, download to path, make executable, then run:
 ```bash
 wget -O /usr/local/bin/best-served-local "https://lacocina.nl/best-served-local"
 chmod +x /usr/local/bin/best-served-local
-best-served-local -o /tmp/fonts.css "Roboto:100,900" "Slabo 27px:400,600"
+best-served-local -o /tmp/fonts.css "Roboto:100,900" "Slabo 27px"
 ```
 
 To display all [commandline arguments], run it with `--help` (or `-h`)
