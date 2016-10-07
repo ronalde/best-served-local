@@ -22,27 +22,30 @@ script adds [automation] and creates high quality
 Paul Irish for serving from your own webserver.
 
 Apart from [bash] version 4, this script only depends on [curl] (or
-[wget]). The script is not tested on OSX yet.
+[wget]). The script is not tested on OSX and Cygwin yet.
 
 
 ## Simple usage example
 
-The commands:
+Each of the following commands will lead to the same result:
+
+* just specifying the font-family and optionally the font-weight(s):
 ```bash
-./best-served-local "Open Sans" "Roboto:bold,thin"
+./best-served-local "Open Sans" "Roboto:bold,thin" > /tmp/fonts.css
+```
+* or, use the html `link` element from your current templates and pages:
+```bash
+./best-served-local -o /tmp/fonts.css \
+  "<link href='https://fonts.googleapis.com/css?family=Open+Sans|Roboto:700,100' rel='stylesheet' type='text/css'>"
+```
+* or, use the `@import` javascript statement:
+```bash
+./best-served-local --outputfile /tmp/fonts.css \
+  "@import url(https://fonts.googleapis.com/css?family=Open+Sans|Roboto:700,100);"
 ```
 
-or, using the html `link` element:
-```bash
-./best-served-local "<link href='https://fonts.googleapis.com/css?family=Open+Sans|Roboto:700,100' rel='stylesheet' type='text/css'>"
-```
-
-or, using the `@import` javascript statement:
-```bash
-./best-served-local "@import url(https://fonts.googleapis.com/css?family=Open+Sans|Roboto:700,100);"
-```
-
-will all display the following `@font-face` css at-rules:
+All three of them will create the file `/tmp/fonts.css` with the
+following `@font-face` css at-rules:
 
 ```css
 /* >>> script generated css starts here >>> */
@@ -76,8 +79,8 @@ will all display the following `@font-face` css at-rules:
 /* <<< script generated css ends here <<< */
 ```
 
-And in the temporary directory, the following files are downloaded,
-ready to be passed over to your webserver:
+... and in a (new) temporary directory, the following files are downloaded,
+ready to be served to your visitors by your webserver:
 
 ```
 /tmp/best-served-local.XXXX
