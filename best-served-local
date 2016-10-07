@@ -28,6 +28,7 @@
 
 ## constants and defaults
 ## font SUBSETSPECS to be downloaded, defaults to 'latin'
+## see https://developers.google.com/fonts/docs/getting_started#specifying_script_subsets
 DEF_ARG_SUBSETSPECS="latin"
 ## comma separated list of FORMATSPECS to be downloaded
 ## defaults to 'practical' (eg 'woff & woff2')
@@ -423,7 +424,7 @@ function download_fontfile() {
 	download_args+=("${url}")
 	download_args+=(-o "${outputpath}")
     fi
-    res="$(${cmd_download} "${download_args[@]}" 2>&1)"
+    res="$(${cmd_download} "${download_args[@]}" 2>&1 &)"
     if [[ $? -ne 0 ]]; then
 	errors=1
 	printf "%s %s error %s downloading font:\n%s\n" \
@@ -444,7 +445,8 @@ function httpget_atrule_google() {
     ## Exits with descriptive error when no success.
     ## In the second iteration ("${formatspec}x" != "x") the fonts'
     ## file format is specified, which will be used to mimic a certain
-    ## user agent to get the proper .
+    ## user agent to get the proper FORMATSPEC.
+    ## see https://developers.google.com/fonts/docs/technical_considerations#what_is_the_google_fonts_api_serving
     cmd_download="$1"
     fontname="$2"
     fontstyleweight="$3"
@@ -455,6 +457,7 @@ function httpget_atrule_google() {
     if [[ "${cmd_download}" == "${cmd_wget}" ]]; then
 	## use wget
 	download_args=(-O "-")
+	## depend on wgets' builtin url-encoding
 	str_postdata="family=${fontfamily}&subset=${subsetspec}"
 	if [[ "${formatspec}x" != "x" ]]; then
 	    download_args+=(--user-agent="'${useragent[${formatspec}]}'")
@@ -469,6 +472,7 @@ function httpget_atrule_google() {
 	download_args+=(--silent)
 	download_args+=(--show-error)
 	download_args+=(--fail)
+	## depend on curls' builtin url-encoding
 	download_args+=(--data-urlencode "family=${fontfamily}")
 	download_args+=(--data-urlencode "subset=${subsetspec}")
 	if [[ "${formatspec}x" != "x" ]]; then
@@ -476,7 +480,7 @@ function httpget_atrule_google() {
 	fi
 	download_args+=("${GOOGLE_FONTAPI_URL}")
     fi
-    cssattr_font_face="$(LANG=C ${cmd_download} "${download_args[@]}" 2>&1)"
+    cssattr_font_face="$(LANG=C ${cmd_download} "${download_args[@]}" 2>&1 &)"
     ret=$?
     if [[ ${ret} -ne 0 ]]; then
 	errors=1
