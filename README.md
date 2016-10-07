@@ -19,10 +19,11 @@ in javascript). The latter uses javascript while I needed bash (v4),
 while mr. Lang's script missed some functionality I would like. This
 script adds [automation] and creates high quality
 [@font-face css3 rules] using the [bulletproof @font-face method] by
-Paul Irish for serving from your own webserver.
+Paul Irish and the format presets by Chris Coyier from
+css-tricks.com.
 
-Apart from [bash] version 4, this script only depends on [curl] (or
-[wget]). The script is not tested on OSX and Cygwin yet.
+Apart from [bash] version 4, this script only depends on [curl] 
+(or [wget]). The script is not tested on OSX and Cygwin yet.
 
 
 ## Simple usage example
@@ -207,8 +208,8 @@ to verify the proper css attributes and such.
 : A `FONTSPEC` is either a space separated list of family names,
   surrounded with quotes or space-escaped, with an optional suffix,
   consisting of `:`, followed by a comma separated list of font
-  weight/style values, or a full html link-element, as produced by
-  https://www.google.com/fonts, or a css `@import` rule. 
+  weight/style values, or a full html `link` element or css `@import`
+  rule, like the ones produced by https://www.google.com/fonts.
   
   For example, to use *"Open Sans"* in the regular font weight and
   style use:
