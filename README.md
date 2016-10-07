@@ -22,8 +22,8 @@ script adds [automation] and creates high quality
 Paul Irish and the format presets by Chris Coyier from
 css-tricks.com.
 
-Apart from [bash] version 4, this script only depends on [curl] 
-(or [wget]). The script is not tested on OSX and Cygwin yet.
+Apart from [bash] version 4, this script only depends on either [curl] 
+or [wget]. The script hasn't been tested on OSX and Cygwin yet.
 
 
 ## Simple usage example
