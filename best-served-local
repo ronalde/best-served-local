@@ -387,12 +387,11 @@ function generate_css() {
 }
 "
     ## return the filled-in template to the calling function
-    printf "%s" \
-   "${font_face_template} \
-   ${cssattr_font_family} \
-   ${cssattr_src_urlformats} \
-   ${cssattr_font_style} \
-   ${cssattr_font_weight}"
+    printf "${font_face_template}" \
+   "${cssattr_font_family}" \
+   "${cssattr_src_urlformats}" \
+   "${cssattr_font_style}" \
+   "${cssattr_font_weight}"
 }
 
 
