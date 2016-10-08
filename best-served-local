@@ -35,7 +35,7 @@ DEF_ARG_SUBSETSPECS="latin"
 DEF_ARG_FORMATSPECS="practical"
 ## app defaults
 APP_NAME="best-served-local"
-APP_VERSION="0.7.1"
+APP_VERSION="0.7.2"
 APP_URL="https://lacocina.nl/using-${APP_NAME}"
 APP_GITHUBURL="https://github.com/ronalde/best-served-local"
 ## google constants
@@ -459,15 +459,14 @@ function generate_css() {
     ## add the rest of the template (spaces are important for final formatting)
     font_face_template+="
    font-style:  %s;
-   font-weight: %s;"
+   font-weight: %s;\n}"
     ## return the complete filled-in css template to the calling
     ## function
     # shellcheck disable=SC2059
     printf "${font_face_template}" \
    "${cssattr_font_family}" \
    "${cssattr_font_style}" \
-   "${cssattr_font_weight}
-}"
+   "${cssattr_font_weight}"
 }
 
 
