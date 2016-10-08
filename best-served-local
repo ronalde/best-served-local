@@ -35,7 +35,7 @@ DEF_ARG_SUBSETSPECS="latin"
 DEF_ARG_FORMATSPECS="practical"
 ## app defaults
 APP_NAME="best-served-local"
-APP_VERSION="0.7"
+APP_VERSION="0.7.1"
 APP_URL="https://lacocina.nl/using-${APP_NAME}"
 APP_GITHUBURL="https://github.com/ronalde/best-served-local"
 ## google constants
@@ -462,6 +462,7 @@ function generate_css() {
    font-weight: %s;"
     ## return the complete filled-in css template to the calling
     ## function
+    # shellcheck disable=SC2059
     printf "${font_face_template}" \
    "${cssattr_font_family}" \
    "${cssattr_font_style}" \
@@ -1071,7 +1072,9 @@ if [[ "${arg_includechrome}x" == "x" ]]; then
 	echo "${css_header}" | fmt -s 1>&2
     else
 	## clear the output_cssfile
-	[[ -f "${arg_output_cssfile}" ]] && rm "${arg_output_cssfile}"
+	if [[ -f "${arg_output_cssfile}" ]] && [[ "${arg_output_cssfile}" != "/dev/stdout" ]]; then
+	    rm "${arg_output_cssfile}"
+	fi
     fi
 else
     ## it should; prepend header as commented css and create or
