@@ -35,7 +35,7 @@ DEF_ARG_SUBSETSPECS="latin"
 DEF_ARG_FORMATSPECS="practical"
 ## app defaults
 APP_NAME="best-served-local"
-APP_VERSION="0.7.2"
+APP_VERSION="0.8"
 APP_URL="https://lacocina.nl/using-${APP_NAME}"
 APP_GITHUBURL="https://github.com/ronalde/best-served-local"
 ## google constants
@@ -473,6 +473,7 @@ function generate_css() {
 function download_fontfile() {
     ## download the font file using $1 from url $2, save it locally in
     ## directory ${checked_dir} with filename $3.
+    ## returns file name on success, error 1 with filename when font file exists, 
     cmd_download="$1"
     url="$2"
     filename="$3"
@@ -493,21 +494,27 @@ function download_fontfile() {
 	## use curl
 	download_args=(--get)
 	download_args+=(--silent)
-	#download_args+=(--verbose)
+	download_args+=(--verbose)
 	download_args+=(--show-error)
 	download_args+=(--fail)
 	download_args+=("${url}")
 	download_args+=(-o "${outputpath}")
     fi
-    res="$(${cmd_download} "${download_args[@]}" 2>&1 &)"
-    if [[ $? -ne 0 ]]; then
+    res="$(LANG=C ${cmd_download} "${download_args[@]}" 2>&1 &)"
+    ## exit code of backgrounded task can't be trapped easily; instead
+    ## rely on existance of outputfile
+    download_pid=$!
+    if [[ ! -f "${outputpath}" ]]; then
+	## in case of error wait for the exit of cmd_download pid
+	wait ${download_pid}
+	ret=$?
 	processchain="$(printf "%s<-" "${FUNCNAME[@]}")"
 	printf "%s: %s error %s downloading font:\n%s\n" \
 	       "${processchain}" "${cmd_download}" "${ret}" "${res}"
-	return 3
+	return 2
     else
-	printf "succesfully downloaded font file to '%s' in directory '%s'." \
-	       "${filename}" "${checked_dir}"
+	## downloaded succesfully; return the path to the font file
+	printf "%s" "${outputpath}"
     fi
 }
 
@@ -1097,24 +1104,34 @@ fi
 if [[ "${arg_skipdownload}x" != "x" ]]; then
     a_msg_err+=("skipping downloading of font files as requested.")
 else
-    printf 1>&2 "Downloading font files " 
+    a_fonts_downloaderrors=()
+    printf 1>&2 "Downloading font files when necessary " 
     for filename in "${!a_downloads[@]}"; do
 	res="$(download_fontfile "${cmd_download}" \
  "${a_downloads[${filename}]}" "${filename}")"
 	## consider failed download non-fatal (see TODO above)
 	case $? in
-	    0) printf 1>&2 "." ;;
-	    1) a_fonts_exists+=("- not overwriting \`${res}'") ;; 
-	    2) a_msg_err+=("$(printf 1>&2 "%s\n" "${res}")") ;;
-	    3) a_msg_err+=("error downloading font file: ${res}") ;;		    
+	    0)
+		printf 1>&2 "."
+		;;
+	    1)
+		a_fonts_exists+=("  \`${res}'")
+		printf 1>&2 "."
+		;; 
+	    2)
+		a_fonts_downloaderrors+=("${res}")
+		printf 1>&2 "x"
+		;;		    
 	esac
     done
     if [[ ${#a_fonts_exists[@]} -gt 0 ]]; then 
 	nr_downloadfonts=$(( ${#a_downloads[@]} - ${#a_fonts_exists[@]} ))
-	printf 1>&2 " ... %s done (%s not overwritten).\n" \
+	printf 1>&2 " ... all done (%s downloaded, %s existed)\n" \
 		    "${nr_downloadfonts}" "${#a_fonts_exists[@]}"
+	a_msg_err+=("- not overwriting ${#a_fonts_exists[@]} existing font files (tip: use \`--overwrite-fonts'):")
+	a_msg_err+=("${a_fonts_exists[@]}")
     else 
-	printf 1>&2 "%s done.\n" "${#a_downloads[@]}"
+	printf 1>&2 "all %s done.\n" "${#a_downloads[@]}"
     fi
     printf 1>&2 "* fonts available in: \`%s'\n" "${checked_dir}"
 fi
