@@ -35,7 +35,7 @@ DEF_ARG_SUBSETSPECS="latin"
 DEF_ARG_FORMATSPECS="practical"
 ## app defaults
 APP_NAME="best-served-local"
-APP_VERSION="0.8"
+APP_VERSION="0.8.1"
 APP_URL="https://lacocina.nl/using-${APP_NAME}"
 APP_GITHUBURL="https://github.com/ronalde/best-served-local"
 ## google constants
@@ -505,7 +505,8 @@ function download_fontfile() {
     ## rely on existance of outputfile
     download_pid=$!
     if [[ ! -f "${outputpath}" ]]; then
-	## in case of error wait for the exit of cmd_download pid
+	## in case of error wait for the exit of the pid of the
+	## cmd_download (we hope)
 	wait ${download_pid}
 	ret=$?
 	processchain="$(printf "%s<-" "${FUNCNAME[@]}")"
@@ -892,17 +893,23 @@ arg_overwrite_css="${arg_overwrite_css:-}"
 arg_overwrite_fonts="${arg_overwrite_fonts:-}"
 arg_includechrome="${arg_includechrome:-}"
 
-## initialize arrays for storing validated selections
+## initialize variables for storing validated selections
+declare checked_dir
 ## array to hold the commandline font specification(s)
 declare -a a_arg_fontspecs
 declare -A a_downloads
 declare -a a_checked_formatspecs
 declare -a a_checked_subsetspecs
 declare -a a_atrules_created
+## arrays for messages, errors and counts
 declare -a a_warnings
 declare -a a_msg_err
-declare checked_dir
-
+declare -a a_msg_inform
+declare -a a_invalid_specs
+declare -a a_fonts_exists
+declare -a a_fonts_download_errors
+declare -a a_fonts_skipped
+declare -a a_fonts_successes
 
 ## valid choices
 valid_subsetspecs=(cyrillic cyrillic-ext greek greek-ext latin latin-ext vietnamese all)
@@ -931,10 +938,6 @@ goggle_url_re="['http's]?[s:]?//${GOOGLE_FONTAPI_HOST//./\\\.}/css\?family="
 goggle_html_link_re="['<link href=\"']?${goggle_url_re}([^[:space:]]*)"
 ## matching group contains everything upon the next ')'
 goggle_js_import_re="['@import url\(']?${goggle_url_re}']?([^\)*)[;]?"
-
-a_invalid_specs=()
-a_fonts_exists=()
-nr_downloadfonts=0
 
 label_overwrite_all="--overwrite"
 label_overwrite_css="--overwrite-css"
@@ -1102,48 +1105,97 @@ fi
 ## done printing css
 ## download the font files if applicable
 if [[ "${arg_skipdownload}x" != "x" ]]; then
-    a_msg_err+=("skipping downloading of font files as requested.")
+    a_msg_inform+=("- skip downloading of font files as requested.")
 else
-    a_fonts_downloaderrors=()
-    printf 1>&2 "Downloading font files when necessary " 
+    printf 1>&2 "Downloading font files to \`%s':" "${checked_dir}"
     for filename in "${!a_downloads[@]}"; do
+	printf 1>&2 "\n%s %-35s " "-" "${filename}"
+	if [[ -f "${checked_dir}/${filename}" ]]; then
+	    a_fonts_exists+=("${checked_dir}/${filename}")
+	    printf 1>&2 " exists   "
+	    if [[ "${arg_overwrite_fonts}x" == "x" ]] ; then
+		a_fonts_skipped+=("${checked_dir}/${filename}")
+		printf 1>&2 "> skipping     > done."
+		continue
+	    else
+		printf 1>&2 "> overwriting "
+	    fi
+
+	else
+	    printf 1>&2 " new file > downloading "
+	fi
 	res="$(download_fontfile "${cmd_download}" \
- "${a_downloads[${filename}]}" "${filename}")"
+"${a_downloads[${filename}]}" "${filename}")"
 	## consider failed download non-fatal (see TODO above)
 	case $? in
 	    0)
-		printf 1>&2 "."
+		a_fonts_successes+=("${res}")
+		printf 1>&2 " > done."
 		;;
-	    1)
-		a_fonts_exists+=("  \`${res}'")
-		printf 1>&2 "."
-		;; 
 	    2)
-		a_fonts_downloaderrors+=("${res}")
-		printf 1>&2 "x"
+		## this will probable never be reached, even if download errors occured.
+		## instead rely on the count of items in the other arrays
+		a_fonts_download_errors+=("${res}")
+		printf 1>&2 " > error!"
 		;;		    
 	esac
+    
     done
-    if [[ ${#a_fonts_exists[@]} -gt 0 ]]; then 
-	nr_downloadfonts=$(( ${#a_downloads[@]} - ${#a_fonts_exists[@]} ))
-	printf 1>&2 " ... all done (%s downloaded, %s existed)\n" \
-		    "${nr_downloadfonts}" "${#a_fonts_exists[@]}"
-	a_msg_err+=("- not overwriting ${#a_fonts_exists[@]} existing font files (tip: use \`--overwrite-fonts'):")
-	a_msg_err+=("${a_fonts_exists[@]}")
-    else 
-	printf 1>&2 "all %s done.\n" "${#a_downloads[@]}"
+    nr_fonts_requested=${#a_downloads[@]}
+    nr_fonts_downloaded=${#a_fonts_successes[@]}
+    nr_fonts_existed=${#a_fonts_exists[@]}
+    nr_fonts_skipped=${#a_fonts_skipped[@]}
+    nr_fonts_available=$(( nr_fonts_downloaded + nr_fonts_skipped ))
+    nr_fonts_missing=$(( nr_fonts_requested - nr_fonts_available ))
+    nr_fonts_overwritten=$(( nr_fonts_existed - nr_fonts_skipped  ))
+    nr_fonts_new=$(( nr_fonts_downloaded - nr_fonts_overwritten ))
+    if (( nr_fonts_missing > 0 )); then
+	if (( nr_fonts_missing = nr_fonts_requested )); then
+	    a_msg_err+=("- none of the ${nr_fonts_missing} font files could be downloaded!")
+	else
+	    a_msg_err+=("- ${nr_fonts_missing} font files could not be downloaded!")
+	fi
+    else
+	if (( nr_fonts_new > 0 )); then
+	    a_msg_inform+=("- ${nr_fonts_new} new font files downloaded")
+	fi
+	## all font files are present
+	if (( nr_fonts_existed > 0 )); then
+	    ## there were existing font files
+	    if (( nr_fonts_skipped > 0 )); then
+		## some were skipped (ie not-overwritten)
+		a_msg_inform+=("- ${nr_fonts_skipped} existing font files not overwritten (tip: use --overwrite-fonts)")
+	    else
+		## none were skipped
+		if (( nr_fonts_existed > nr_fonts_skipped )); then 
+		    ## fonts were overwritten
+		    a_msg_inform+=("- ${nr_fonts_overwritten} existing font files overwritten with downloaded version")
+		fi
+	    fi
+	fi
     fi
-    printf 1>&2 "* fonts available in: \`%s'\n" "${checked_dir}"
 fi
 ## display errors/warnings if applicable
+## display errors/warnings if applicable
+    
+if [[ ${#a_msg_inform[@]} -gt 0 ]]; then
+    printf 1>&2 "\n\nSummary:\n"
+    printf 1>&2 "%s\n" "${a_msg_inform[@]}"
+    printf 1>&2 "%s %s font files available in \`%s'\n" \
+		"-" "${nr_fonts_available}" "${checked_dir}"
+fi
+if [[ "${arg_output_cssfile}" != "/dev/stdout" ]]; then
+    printf 1>&2 "%s css file saved in: \`%s'\n" \
+		"-" "${arg_output_cssfile}"
+else
+    printf 1>&2 "%s css file printed to stdout\n" "-"
+fi
 if [[ ${#a_msg_err[@]} -gt 0 ]]; then
-    printf 1>&2 "\nPlease note the following:\n"
+    printf 1>&2 "\nThe following errors occured:\n"
     printf 1>&2 "%s\n" "${a_msg_err[@]}"
     exit 2
 else
-    if [[ "${arg_output_cssfile}" != "/dev/stdout" ]]; then
-	printf 1>&2 "* css file saved in:  \`%s'\n" "${arg_output_cssfile}"
-    fi
+    printf 1>&2 "%s all done without errors.\n" "-"
 fi
 
 ## all done
