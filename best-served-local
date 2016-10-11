@@ -334,7 +334,7 @@ function analyze_commandline_args() {
     ## parse command line arguments using the `manual loop` method
     ## described in http://mywiki.wooledge.org/BashFAQ/035.
     while :; do
-        case "${1:-}" in
+        case "${1}" in
             -o|--outputfile)
 		if [[ -n "${2:-}" ]]; then
 		    arg_output_cssfile="${2}"
@@ -434,6 +434,7 @@ function analyze_commandline_args() {
 		fi
 		;;
 	    -v|"${label_verbose}")
+		printf 1>&2 "verbose on\n"
 		if [[ -n "${2:-}" ]]; then
 		    arg_opt_verbose=True
 		    shift
@@ -1042,6 +1043,7 @@ if [[ "${0}" =~ /dev/fd.* ]]; then
 else
     label_appname="${0:-APP_NAME}"
 fi
+## reconstruct cmdline for include-chrome option
 cmdline_args_raw="$(printf "%s " "$@" | fmt)"
 cmdline_args="$(while read -r line; 
 do printf "%s \ \n" "${line}"; 
@@ -1056,7 +1058,26 @@ css_footer="<<< generated font-face at-rules end here <<<"
 
 ## main program flow
 ## analyze and store all commandline arguments
-analyze_commandline_args "$@" || exit 1
+printf 1>&2 "args:%s\n" "${#@}"
+if [[ ${#@} -eq 0 ]]; then
+    printf 1>&2 "no commandline args; check stdin\n"
+    ## no commandline args; check stdin
+    input=$(test -s /dev/stdin && cat)
+    if [[ "${input}x" == "x" ]] ; then 
+	## stdin empty: display help (and exit)
+	analyze_commandline_args "-h"
+    else
+	## input supplied through stdin; feed it to analyze_commandline_args
+	analyze_commandline_args "$@ ${input}" || exit 1
+    fi
+else
+    printf 1>&2 "commandline args; run analyze_commandline_args\n"
+    analyze_commandline_args "$@" || exit 1
+fi
+
+
+#exit
+#analyze_commandline_args "$@" || exit 1
 ## turn FONTSPECs in arg_fontspecs set by analyze_commandline_args
 ## into an array.
 # shellcheck disable=SC2162
