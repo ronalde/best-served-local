@@ -35,7 +35,7 @@ DEF_ARG_SUBSETSPECS="latin"
 DEF_ARG_FORMATSPECS="practical"
 ## app defaults
 APP_NAME="best-served-local"
-APP_VERSION="0.8.2"
+APP_VERSION="0.8.3"
 APP_URL="https://lacocina.nl/using-${APP_NAME}"
 APP_GITHUBURL="https://github.com/ronalde/best-served-local"
 ## google constants
@@ -161,7 +161,7 @@ function get_fontsdirectory() {
 	return 1
     else 
 	## no errors; return the path of the directory
-	printf "%s" "${arg_fonts_dir}"
+	printf "%s" "${arg_fonts_dir%%/}"
     fi
 }
 
@@ -179,7 +179,7 @@ function display_usageinfo() {
    ${APP_NAME} \\
         [-o|--outputfile PATH] [-d|--fontdirectory PATH] \\
         [-i|--incss-fontpath PATH] \\
- 	[${label_overwrite_all} | [${label_overwrite_css}] [${label_overwrite_fonts}]] \\
+ 	[-w|${label_overwrite_all} | [${label_overwrite_css}] [${label_overwrite_fonts}]] \\
         [-f|--formats FORMATSPEC] [-s|--subsetspec SUBSETSPEC] \\
         [-n|--skip-downloads] [-x|${label_skip_localsrc}] \\
         [${label_includechrome}] [-v|${label_verbose}] \\
@@ -206,7 +206,7 @@ OPTIONAL ARGUMENTS
   -o|--outputfile PATH     Path to the file to save the CSS in.
   -d|--fontdirectory PATH  Path to the directory to download fonts to.
   -i|--incss-fontpath PATH Path used to reference font files within the css.
-  ${label_overwrite_all}              Overwrite existing font and css files."
+  -w|${label_overwrite_all}              Overwrite existing font and css files."
 
     msg_help_arguments_advanced="${msg_help_arguments_basic}
   ${label_overwrite_css}          Overwrite existing css file.
@@ -395,6 +395,8 @@ function analyze_commandline_args() {
 		    arg_skipdownload=True
 		    shift
 		    continue
+		else
+		    shift	    
 		fi
 		;;
 	    -x|"${label_skip_localsrc}"*)
@@ -402,6 +404,8 @@ function analyze_commandline_args() {
 		    arg_skiplocal=True
 		    shift
 		    continue
+		else
+		    shift
 		fi
 		;;
 	   "${label_overwrite_css}"*)
@@ -409,6 +413,8 @@ function analyze_commandline_args() {
 		    arg_overwrite_css=True
 		    shift
 		    continue
+		else
+		    shift
 		fi
 		;;
 	    "${label_overwrite_fonts}"*)
@@ -416,14 +422,18 @@ function analyze_commandline_args() {
 		    arg_overwrite_fonts=True
 		    shift
 		    continue
+		else
+		    shift
 		fi
 		;;
-	    "${label_overwrite_all}")
+	    -w|"${label_overwrite_all}")
 		if [[ -n "${2:-}" ]]; then
 		    arg_overwrite_fonts=True
 		    arg_overwrite_css=True
 		    shift
 		    continue
+		else
+		    shift
 		fi
 		;;
 	    "${label_includechrome}")
@@ -431,6 +441,8 @@ function analyze_commandline_args() {
 		    arg_opt_includechrome=True
 		    shift
 		    continue
+		else
+		    shift
 		fi
 		;;
 	    -v|"${label_verbose}")
@@ -439,6 +451,8 @@ function analyze_commandline_args() {
 		    arg_opt_verbose=True
 		    shift
 		    continue
+		else
+		    shift
 		fi
 		;;
 	    -h|-\?|--help) 
@@ -570,19 +584,17 @@ function download_fontfile() {
     ## returns file name on success, error 1 with filename when font file exists, 
     cmd_download="$1"
     url="$2"
-    filename="$3"
+    output_file_path="$3"
     local download_args=()
-    ## construct the full path
-    local outputpath="${checked_dir}/${filename}"
     ## see if an existing font file should be overwritten
-    if [[ -f "${outputpath}" ]] && [[ "${arg_overwrite_fonts}x" == "x" ]]; then
+    if [[ -f "${output_file_path}" ]] && [[ "${arg_overwrite_fonts}x" == "x" ]]; then
 	## return the filename and a specific error
-	printf "%s" "${outputpath}"
+	printf "%s" "${output_file_path}"
 	return 1
     fi
     if [[ "${cmd_download}" == "${cmd_wget}" ]]; then
 	## use wget
-	download_args=(-O "${outputpath}")
+	download_args=(-O "${output_file_path}")
 	download_args+=("${url}")
     else
 	## use curl
@@ -592,13 +604,13 @@ function download_fontfile() {
 	download_args+=(--show-error)
 	download_args+=(--fail)
 	download_args+=("${url}")
-	download_args+=(-o "${outputpath}")
+	download_args+=(-o "${output_file_path}")
     fi
     res="$(LANG=C ${cmd_download} "${download_args[@]}" 2>&1 &)"
     ## exit code of backgrounded task can't be trapped easily; instead
     ## rely on existance of outputfile
     download_pid=$!
-    if [[ ! -f "${outputpath}" ]]; then
+    if [[ ! -f "${output_file_path}" ]]; then
 	## in case of error wait for the exit of the pid of the
 	## cmd_download (we hope)
 	wait ${download_pid}
@@ -609,7 +621,7 @@ function download_fontfile() {
 	return 2
     else
 	## downloaded succesfully; return the path to the font file
-	printf "%s" "${outputpath}"
+	printf "%s" "${output_file_path}"
     fi
 }
 
@@ -880,7 +892,7 @@ ${cssattr_font_face}"
    	    url_format_template="        url('%s') format('%s'),\n"
 	    url_format_template="url('%s') format('%s'),\n"
 	    if [[ "${arg_incss_fontsdir}x" != "x" ]]; then
-		filename="${arg_incss_fontsdir%/}/${filename}"
+		filename="${arg_incss_fontsdir%%/}/${filename}"
 	    fi
 	    if [[ "${add_eot_src_attr}x" != "x" ]] && [[ "${formatspec}" = "eot" ]]; then
 		## prepend the final src variable with the ie9 quirk workaround
@@ -1226,15 +1238,19 @@ if [[ "${arg_skipdownload}x" != "x" ]]; then
 else
     [[ "${arg_opt_verbose}x" == "x" ]] || \
 	printf 1>&2 "\nDownloading font files to \`%s':" "${checked_dir}"
-    for filename in "${!a_downloads[@]}"; do
+    for rel_file_path in "${!a_downloads[@]}"; do
+	## filename contains arg_incssdir, strip it
+	output_file_path="${rel_file_path//${arg_incss_fontsdir}\/}"
+	## prepend with absolute path of output directory (checked_dir)
+	output_file_path="${checked_dir}/${output_file_path}"
 	[[ "${arg_opt_verbose}x" == "x" ]] || \
-	    printf 1>&2 "\n%s %-40s " "-" "${filename}"
-	if [[ -f "${checked_dir}/${filename}" ]]; then
-	    a_fonts_exists+=("${checked_dir}/${filename}")
+	    printf 1>&2 "\n%s %-40s " "-" "${output_file_path}"
+	if [[ -f "${output_file_path}" ]]; then
+	    a_fonts_exists+=("${output_file_path}")
 	    [[ "${arg_opt_verbose}x" == "x" ]] || \
 		printf 1>&2 " exists   "
 	    if [[ "${arg_overwrite_fonts}x" == "x" ]] ; then
-		a_fonts_skipped+=("${checked_dir}/${filename}")
+		a_fonts_skipped+=("${output_file_path}")
 		[[ "${arg_opt_verbose}x" == "x" ]] || \
 		    printf 1>&2 "> skipping     > done."
 		continue
@@ -1247,7 +1263,7 @@ else
 		printf 1>&2 " new file > downloading "
 	fi
 	res="$(download_fontfile "${cmd_download}" \
-"${a_downloads[${filename}]}" "${filename}")"
+"${a_downloads[${rel_file_path}]}" "${output_file_path}")"
 	## consider failed download non-fatal (see TODO above)
 	case $? in
 	    0)
