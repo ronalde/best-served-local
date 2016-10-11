@@ -34,12 +34,15 @@ Each of the following commands will lead to the same result:
 ```bash
 ./best-served-local "Open Sans" "Roboto:bold,thin" > /tmp/fonts.css
 ```
-* or, use the html `link` element from your current templates and pages:
+* or, use the html `link` element from your current templates and
+  pages to extract the `FONTSPEC`, together with the `-o|--outputfile`
+  argument to safely write the css to the file specified:
 ```bash
 bash best-served-local -o /tmp/fonts.css \
   "<link href='https://fonts.googleapis.com/css?family=Open+Sans|Roboto:700,100' rel='stylesheet' type='text/css'>"
 ```
-* or, use a css `@import` rule:
+* or, run the script directly from the web, while using a css
+  `@import` rule to extract the `FONTSPEC` from:
 ```bash
 bash <(wget -q -O- "https://lacocina.nl/best-served-local") \
    --outputfile /tmp/fonts.css \
@@ -50,39 +53,35 @@ All three commands will create the file `/tmp/fonts.css` with the
 following `@font-face` css at-rules:
 
 ```css
-/* >>> script generated css starts here >>> */
 @font-face {
    font-family: 'Open Sans';
-   src: 
-        local('Open Sans'), local('OpenSans'), 
-		url('Open_Sans_v13_latin_400.woff2') format('woff2'),
-		url('Open_Sans_v13_latin_400.woff') format('woff');
-		font-style:  normal;
-		font-weight: 400;
+   src:         local('Open Sans'), local('OpenSans'), 
+                url('Open_Sans_v13_latin_400.woff2') format('woff2'),
+                url('Open_Sans_v13_latin_400.woff') format('woff');
+   font-style:  normal;
+   font-weight: 400;
 }
 @font-face {
-	font-family: 'Roboto Bold';
-	src: 
-	     local('Roboto Bold'), local('Roboto-Bold'), 
-	     url('Roboto_Bold_v15_latin_700.woff2') format('woff2'),
-	     url('Roboto_Bold_v15_latin_700.woff') format('woff');
-	font-style:  normal;
-	font-weight: 700;
+   font-family: 'Roboto';
+   src:         local('Roboto Bold'), local('Roboto-Bold'), 
+                url('Roboto_Bold_v15_latin_700.woff2') format('woff2'),
+                url('Roboto_Bold_v15_latin_700.woff') format('woff');
+   font-style:  normal;
+   font-weight: 700;
 }
 @font-face {
- 	font-family: 'Roboto Thin';
-	src: 
-	     local('Roboto Thin'), local('Roboto-Thin'), 
-	     url('Roboto_Thin_v15_latin_100.woff2') format('woff2'),
-	     url('Roboto_Thin_v15_latin_100.woff') format('woff');
-	     font-style:  normal;
-	     font-weight: 100;
+   font-family: 'Roboto';
+   src:         local('Roboto Thin'), local('Roboto-Thin'), 
+                url('Roboto_Thin_v15_latin_100.woff2') format('woff2'),
+                url('Roboto_Thin_v15_latin_100.woff') format('woff');
+   font-style:  normal;
+   font-weight: 100;
 }
-/* <<< script generated css ends here <<< */
 ```
 
-... and in a (new) temporary directory, the following files are
-downloaded, ready to be served to your visitors by your webserver:
+... and in a (new) temporary directory displayed on the screen, the
+following files are downloaded, ready to be served to your visitors by
+your webserver:
 
 ```
 /tmp/best-served-local.XXXX
@@ -124,17 +123,23 @@ chmod +x /usr/local/bin/best-served-local
 best-served-local -o /tmp/fonts.css "Roboto:100,900" "Slabo 27px"
 ```
 
-To display all [commandline arguments], run it with `--help` (or `-h`)
-argument. It will display something like:
+To display the basic [commandline arguments], run it with `--help` (or `-h`)
+argument or, to display all arguments, use  `--advanced-help` (or `-hh`). The latter will display something like:
 
 ```bash
-best-served-local [-o|--outputfile PATH] [-d|--fontdirectory PATH] \
-      [-i|--incss-fontpath PATH] \
-      [-s|--subsets SUBSETSPEC] [-f|--formats FORMATSPEC] \
-      [-n|--skip-downloads] [-x|--skip-local] \
-	  [--overwrite-cssfile] [--overwrite-fonts] \
-      [-h|--help] \
-      FONTSPEC
+Usage:
+   best-served-local FONTSPEC
+   -or-
+   best-served-local \
+        [-o|--outputfile PATH] [-d|--fontdirectory PATH] \
+        [-i|--incss-fontpath PATH] \
+     	[--overwrite | [--overwrite-css] [--overwrite-fonts]] \
+        [-f|--formats FORMATSPEC] [-s|--subsetspec SUBSETSPEC] \
+        [-n|--skip-downloads] [-x|--skip-local] \
+        [--include-chrome] [-v|--verbose] \
+        [-h|--help] \
+        FONTSPEC
+...
 ```
 
 The only required argument is [FONTSPEC]; all other arguments are
@@ -261,22 +266,22 @@ to verify the proper css attributes and such.
   in the generated css using its `url` value. For example setting
   `PATH` to `../downloadedfonts` will lead to the following css `src:
   url('../downloadedfonts/A_Web_Font_v1_latin.woff2')`.
-  
-**`-n`** or **`--no-downloads`**
-: Setting this argument causes the script to **not download** the web
-  font files, which it by default does do.
-  > However, this does **not prevent the script to contact google's font
-  > servers** for obtaining information on each requested font.
 
-**`-x`** or **`--skip-local`**
-: Prevents the inclusion of the `local()` references in the `src`
-  attribute. Although the use of such references to fonts installed on
-  the browsers' system saves downloading them at page load, they might
-  differ from the versions served by your webserver. Skipping such
-  references makes sure the browser gets what you want them to get.
+**`-overwrite-css`**
+: When used together with `--outputfile PATH`, using this argument
+makes the script overwrite the file specified with `PATH` in case it
+exists, which normally does not happen.
 
-**`-f FORMATSPECS`** or **`--formats FORMATSPECS`**
-: `FORMATSPECS` define the font file formats to use. It should be
+**`-overwrite-fonts`**
+: When used together with `--fontdirectory PATH`, using this argument
+  makes the script overwrite the font files in the directory specified
+  with `PATH` in case they exists, which normally does not happen.
+
+**`-overwrite`**
+: Sets both `--overwrite-css` and `--overwrite-fonts`.
+
+**`-f FORMATSPEC`** or **`--formats FORMATSPEC`**
+: `FORMATSPEC` define the font file format(s) to use. It should be
   specified as one of the *presets*, or a comma-separated list of
   specific formats. The script recognize the presets from
   [Using @font-face] by Chris Coyier from css-tricks.com:
@@ -304,23 +309,33 @@ to verify the proper css attributes and such.
 ```
 
 **`-s SUBSETSPEC`** or **`--subsets SUBSETSPEC`**
-: Comma-separated list of `SUBSETS`. A `SUBSET` is one of the
-  following predefined names: `cyrillic`, `cyrillic-ext`, `greek`,
-  `greek-ext`, `latin` (default), `latin-ext`, `vietnamese` and `all`.
+: Comma-separated list of a `SUBSETSPEC`. Should be `all`, or one or
+  more of the following separate predefined names: `cyrillic`,
+  `cyrillic-ext`, `greek`, `greek-ext`, `latin` (default),
+  `latin-ext`, or `vietnamese`.
 
-**`-overwrite-css`**
-: When used together with `--outputfile PATH`, using this argument
-makes the script overwrite the file specified with `PATH` in case it
-exists, which normally does not happen.
+**`-n`** or **`--no-downloads`**
+: Setting this argument causes the script to **not download** the web
+  font files, which it by default does do.
+  > However, this does **not prevent the script to contact google's font
+  > servers** for obtaining information on each requested font.
 
-**`-overwrite-fonts`**
-: When used together with `--fontdirectory PATH`, using this argument
-  makes the script overwrite the font files in the directory specified
-  with `PATH` in case they exists, which normally does not happen.
+**`-x`** or **`--skip-local`**
+: Prevents the inclusion of the `local()` references in the `src`
+  attribute. Although the use of such references to fonts installed on
+  the browsers' system saves downloading them at page load, they might
+  differ from the versions served by your webserver. Skipping such
+  references makes sure the browser gets what you want them to get.
 
-**`-overwrite`**
-: Sets both `--overwrite-css` and `--overwrite-fonts`.
+**`--include-chrome`**
+: Surrounds the generated css using a header and footer as a css
+  comment indicating where the script generated css starts and
+  ends. The comment header also contains the version of the script,
+  the date/time the script was executed and the command line arguments
+  used.
 
+**`-v`** or **`--verbose`** 
+: Increases verbosity printed to stdout while executing the script
 
 ---------------
 
