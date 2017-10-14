@@ -35,14 +35,14 @@ DEF_ARG_SUBSETSPECS="latin"
 DEF_ARG_FORMATSPECS="practical"
 ## app defaults
 APP_NAME="best-served-local"
-APP_VERSION="0.8.3"
+APP_VERSION="0.8.4"
 APP_URL="https://lacocina.nl/using-${APP_NAME}"
 APP_GITHUBURL="https://github.com/ronalde/best-served-local"
 ## google constants
 GOOGLE_FONTAPI_HOST="fonts.googleapis.com"
 GOOGLE_FONTAPI_URL="https://${GOOGLE_FONTAPI_HOST}/css"
 GOOGLE_FONTS_URL="https://fonts.google.com/"
-printf -v RUNDATE "%()T"
+printf -v RUNDATE "%(%Y-%m-%d %H:%M:%S)T"
 cmd_download="${cmd_download:-}"
 
 function err_exit() {
