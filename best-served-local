@@ -518,7 +518,6 @@ function analyze_commandline_args() {
     ## and return them as 0-separated strings.
     shift $((OPTIND - 1))
     arg_fontspecs="$(printf "%s\n" "$@")"
-    printf 1>&2 "incoming = \`%s'\n" "${arg_fontspecs}"
     case "${arg_fontspecs}x" in
 	"x"|"-x")
 	    printf 1>&2 "fontspec empty try stdin\n"
