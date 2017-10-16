@@ -516,7 +516,6 @@ function analyze_commandline_args() {
     ## shift the options index to get the remainder of the command
     ## line arguments containing the font descriptions
     ## and return them as 0-separated strings.
-    printf 1>&2 "OPTIND: \`%s'\n" "${OPTIND}"
     shift $((OPTIND - 1))
     arg_fontspecs="$(printf "%s\n" "$@")"
     printf 1>&2 "incoming = \`%s'\n" "${arg_fontspecs}"
@@ -542,14 +541,6 @@ function analyze_commandline_args() {
 		arg_fontspecs="$(extract_fontspecs "${input}")"
 	    fi
 	    ;;
-	http*)
-	    ## fontspec is url
-	    printf 1>&2 "fontspec is url\n"
-	    ;;
-	*)
-	    printf 1>&2 "fontspec is fontspec\n"
-	    ;;
-	
     esac
 }
 
@@ -653,7 +644,7 @@ function download_fontfile() {
 	download_args+=("${url}")
 	download_args+=(-o "${output_file_path}")
     fi
-    res="$(LANG=C ${cmd_download} "${download_args[@]}" 2>&1 &)"
+    res="$(LANG=C ${cmd_download} "${download_args[@]}" 2>/dev/null &)"
     ## exit code of backgrounded task can't be trapped easily; instead
     ## rely on existance of outputfile
     download_pid=$!
